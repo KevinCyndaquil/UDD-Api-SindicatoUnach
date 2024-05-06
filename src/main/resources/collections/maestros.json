@@ -1,0 +1,14 @@
+[
+  {
+    "nombre": "ERWIN SANTIAGO",
+    "apellido_paterno": "BERMUDEZ",
+    "apellido_materno": "CASILLAS",
+    "correo": {
+      "direccion": "erwin.bermudez@unach.mx"
+    },
+    "password": "paracetamol23!",
+    "telefono": {
+      "numero": "+(52) 962 782 1242"
+    }
+  }
+]
