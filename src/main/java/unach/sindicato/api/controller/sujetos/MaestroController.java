@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import unach.sindicato.api.controller.AuthController;
 import unach.sindicato.api.controller.PersistenceController;
-import unach.sindicato.api.persistence.sujetos.Maestro;
-import unach.sindicato.api.service.sujetos.MaestroService;
+import unach.sindicato.api.persistence.escuela.Maestro;
+import unach.sindicato.api.service.escuela.MaestroService;
 import unach.sindicato.api.utils.response.UddResponse;
 
 @RestController

@@ -1,9 +1,9 @@
-package unach.sindicato.api.service.sujetos;
+package unach.sindicato.api.service.escuela;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import unach.sindicato.api.persistence.sujetos.Maestro;
+import unach.sindicato.api.persistence.escuela.Maestro;
 import unach.sindicato.api.repository.MaestroRepository;
 import unach.sindicato.api.service.auth.AuthService;
 import unach.sindicato.api.service.persistence.PersistenceService;

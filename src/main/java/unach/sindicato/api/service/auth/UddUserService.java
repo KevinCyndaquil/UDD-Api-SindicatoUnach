@@ -10,8 +10,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import unach.sindicato.api.persistence.sujetos.Administrador;
-import unach.sindicato.api.persistence.sujetos.Maestro;
+import unach.sindicato.api.persistence.administracion.Administrador;
+import unach.sindicato.api.persistence.escuela.Maestro;
 import unach.sindicato.api.utils.UddUser;
 
 @Service

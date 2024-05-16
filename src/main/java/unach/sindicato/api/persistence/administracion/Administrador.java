@@ -1,4 +1,4 @@
-package unach.sindicato.api.persistence.sujetos;
+package unach.sindicato.api.persistence.administracion;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Data;
@@ -12,7 +12,7 @@ import unach.sindicato.api.utils.Roles;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Document(collection = "sujetos")
+@Document(collection = "administracion")
 public class Administrador extends UddUser {
 
     @Override
@@ -22,6 +22,6 @@ public class Administrador extends UddUser {
 
     @Override
     public String getUsername() {
-        return "";
+        return getCorreo_institucional().getDireccion();
     }
 }

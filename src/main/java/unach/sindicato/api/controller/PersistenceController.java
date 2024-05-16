@@ -10,8 +10,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import unach.sindicato.api.service.persistence.PersistenceService;
 import unach.sindicato.api.utils.UddLogger;
-import unach.sindicato.api.utils.groups.PostInfo;
-import unach.sindicato.api.utils.groups.PutInfo;
+import unach.sindicato.api.utils.groups.InitInfo;
+import unach.sindicato.api.utils.groups.NotId;
 import unach.sindicato.api.utils.persistence.InstanciaUnica;
 import unach.sindicato.api.utils.persistence.Unico;
 import unach.sindicato.api.utils.response.UddResponse;
@@ -33,7 +33,7 @@ public interface PersistenceController <C extends Unico> {
 
     @Transactional
     @PostMapping
-    default UddResponse save(@RequestBody @Validated(PostInfo.class) C c) {
+    default UddResponse save(@RequestBody@Validated({InitInfo.class, NotId.class}) C c) {
         logger.post(getClass());
 
         return UddResponse.collection()
@@ -46,7 +46,7 @@ public interface PersistenceController <C extends Unico> {
 
     @Transactional
     @PostMapping("/all")
-    default UddResponse save(@RequestBody @Validated(PostInfo.class) Set<C> c) {
+    default UddResponse save(@RequestBody@Validated({InitInfo.class, NotId.class}) Set<C> c) {
         logger.post(getClass());
 
         return UddResponse.collection()
@@ -57,7 +57,7 @@ public interface PersistenceController <C extends Unico> {
                 .build();
     }
 
-    @GetMapping("/all")
+    @GetMapping()
     default UddResponse findAll() {
         logger.get(getClass());
 
@@ -70,7 +70,7 @@ public interface PersistenceController <C extends Unico> {
     }
 
     @PostMapping("/where/id/is")
-    default UddResponse findById(@RequestBody @Valid InstanciaUnica<ObjectId> instancia) {
+    default UddResponse findById(@RequestBody@Valid InstanciaUnica instancia) {
         logger.post(getClass());
 
         return UddResponse.collection()
@@ -83,7 +83,7 @@ public interface PersistenceController <C extends Unico> {
 
     @Transactional
     @PutMapping
-    default UddResponse update(@NonNull @RequestBody @Validated(PutInfo.class) C c) {
+    default UddResponse update(@RequestBody@Validated({InitInfo.class, NotId.class}) C c) {
         logger.put(getClass());
 
         String message = service().update(c) ?
@@ -98,7 +98,7 @@ public interface PersistenceController <C extends Unico> {
 
     @Transactional
     @DeleteMapping
-    default UddResponse delete(@NonNull @RequestParam("id") ObjectId id) {
+    default UddResponse delete(@NonNull@RequestParam("id") ObjectId id) {
         logger.delete(getClass());
 
         String message = service().delete(id) ?

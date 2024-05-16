@@ -20,10 +20,11 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import unach.sindicato.api.persistence.sujetos.Administrador;
-import unach.sindicato.api.persistence.sujetos.Maestro;
-import unach.sindicato.api.utils.groups.PostInfo;
-import unach.sindicato.api.utils.groups.PutInfo;
+import unach.sindicato.api.persistence.administracion.Administrador;
+import unach.sindicato.api.persistence.escuela.Maestro;
+import unach.sindicato.api.utils.groups.InitInfo;
+import unach.sindicato.api.utils.groups.NotId;
+import unach.sindicato.api.utils.groups.IdInfo;
 import unach.sindicato.api.utils.persistence.Nombrable;
 import unach.sindicato.api.utils.persistence.Unico;
 
@@ -42,32 +43,40 @@ import java.util.List;
         @Type(value = Administrador.class, name = "administrador")})
 
 @Data
-@EqualsAndHashCode(exclude = {"nombre","apellido_paterno","apellido_materno","correo"})
+@EqualsAndHashCode(exclude = {"nombre","apellido_paterno","apellido_materno","correo_institucional", "password", "salt"})
 @Document(collection = "sujetos")
 public abstract class UddUser implements Unico, Nombrable, UserDetails {
-    @Null(groups = PostInfo.class)
-    @NotNull(groups = PutInfo.class)
+    @Null(message = "No se debe proporcionar una propiedad id",
+            groups = NotId.class)
+    @NotNull(message = "Se requiere un identicador",
+            groups = IdInfo.class)
     ObjectId id;
-    @NotEmpty(groups = PostInfo.class)
-    @Pattern(regexp = "(?U)^[\\p{Lu}\\p{M}\\d]+( [\\p{Lu}\\p{M}\\d]+)*$", groups = PostInfo.class)
+    @NotEmpty(message = "Se requiere un nombre",
+            groups = InitInfo.class)
+    @Pattern(message = "Nombre invalido",
+            regexp = "(?U)^[\\p{Lu}\\p{M}\\d]+( [\\p{Lu}\\p{M}\\d]+)*$",
+            groups = InitInfo.class)
     String nombre;
-    @NotEmpty(groups = PostInfo.class)
-    @Pattern(regexp = "(?U)^[\\p{Lu}\\p{M}\\d]+$", groups = PostInfo.class)
+    @NotEmpty(message = "Se requiere un apellido paterno", groups = InitInfo.class)
+    @Pattern(message = "Apellido invalido",
+            regexp = "(?U)^[\\p{Lu}\\p{M}\\d]+$",
+            groups = InitInfo.class)
     String apellido_paterno;
-    @Pattern(regexp = "(?U)^[\\p{Lu}\\p{M}\\d]+$", groups = PostInfo.class)
+    @Pattern(message = "Se requiere un apellido materno",
+            regexp = "(?U)^[\\p{Lu}\\p{M}\\d]+$",
+            groups = InitInfo.class)
     String apellido_materno;
-    @Valid
-    @NotNull(groups = PostInfo.class)
-    Correo correo;
+    @NotNull(message = "Se requiere un correo institucional",
+            groups = InitInfo.class)
+    @Valid Correo correo_institucional;
     @JsonProperty(access = Access.WRITE_ONLY)
-    @NotEmpty(groups = PostInfo.class)
+    @NotEmpty(message = "Se requiere una contraseña",
+            groups = InitInfo.class)
     @Pattern(regexp = "^.{8,}$",
             message = "Las contraseñas deben tener al menos 8 caracteres",
-            groups = PostInfo.class)
+            groups = InitInfo.class)
     String password;
-    @JsonIgnore
-    @Null(groups = PostInfo.class)
-    String salt;
+    @JsonIgnore String salt;
 
     @Field("rol")
     public abstract @NonNull Roles getRol();

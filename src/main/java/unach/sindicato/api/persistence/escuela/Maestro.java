@@ -1,4 +1,4 @@
-package unach.sindicato.api.persistence.sujetos;
+package unach.sindicato.api.persistence.escuela;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import jakarta.validation.Valid;
@@ -6,12 +6,13 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import unach.sindicato.api.persistence.documentos.Documento;
 import unach.sindicato.api.utils.UddUser;
 import unach.sindicato.api.utils.Roles;
 import unach.sindicato.api.utils.Telefono;
-import unach.sindicato.api.utils.groups.PostInfo;
+import unach.sindicato.api.utils.groups.InitInfo;
 
 import java.util.Set;
 
@@ -24,16 +25,15 @@ import java.util.Set;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Document(collection = "sujetos")
+@Document(collection = "escuela")
 public class Maestro extends UddUser {
-    @Valid
-    Set<Documento> documentos;
-    @Valid
-    @NotNull(groups = PostInfo.class)
-    Telefono telefono;
-    @Valid
-    Facultad facultad;
-    @NotNull(groups = PostInfo.class)
+    @Valid@DBRef(lazy = true) Set<Documento> documentos;
+    @NotNull(message = "Se requiere un télefono",
+            groups = InitInfo.class)
+    @Valid Telefono telefono;
+    @Valid Facultad facultad;
+    @NotNull(message = "Se requiere un estatus",
+            groups = InitInfo.class)
     Estatus estatus = Estatus.SIN_VALIDACION;
 
     @Override
@@ -43,7 +43,7 @@ public class Maestro extends UddUser {
 
     @Override
     public String getUsername() {
-        return getCorreo().getDireccion();
+        return getCorreo_institucional().getDireccion();
     }
 
     public enum Estatus {

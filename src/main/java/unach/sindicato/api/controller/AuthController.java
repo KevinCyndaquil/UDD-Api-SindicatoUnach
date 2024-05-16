@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import unach.sindicato.api.service.auth.AuthService;
 import unach.sindicato.api.utils.UddLogger;
 import unach.sindicato.api.utils.UddUser;
-import unach.sindicato.api.utils.groups.PostInfo;
+import unach.sindicato.api.utils.groups.InitInfo;
+import unach.sindicato.api.utils.groups.NotId;
 import unach.sindicato.api.utils.persistence.Credential;
 import unach.sindicato.api.utils.response.UddResponse;
 
@@ -21,7 +22,7 @@ public interface AuthController <U extends UddUser> {
 
     @Transactional
     @PostMapping("/auth/register")
-    default UddResponse register(@RequestBody @Validated(PostInfo.class) U u) {
+    default UddResponse register(@RequestBody@Validated({InitInfo.class, NotId.class}) U u) {
         logger.post(getClass());
 
         return UddResponse.collection()
@@ -33,7 +34,7 @@ public interface AuthController <U extends UddUser> {
     }
 
     @PostMapping("/auth/login")
-    default UddResponse login(@RequestBody @Valid Credential credential) {
+    default UddResponse login(@RequestBody@Valid Credential credential) {
         logger.post(getClass());
 
         return UddResponse.collection()

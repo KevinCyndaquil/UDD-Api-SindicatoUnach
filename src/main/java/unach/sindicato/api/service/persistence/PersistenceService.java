@@ -45,7 +45,7 @@ public interface PersistenceService <C extends Unico> extends UddService<C>, Sav
         return findById(c.getId());
     }
 
-    default C findById(@NonNull InstanciaUnica<ObjectId> cInstance) throws BusquedaSinResultadoException {
+    default C findById(@NonNull InstanciaUnica cInstance) throws BusquedaSinResultadoException {
         return findById(cInstance.getId());
     }
 

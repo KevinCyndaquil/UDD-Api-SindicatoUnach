@@ -11,6 +11,6 @@ import java.util.List;
 public interface FindService <C extends Unico> {
     C findById(ObjectId id) throws BusquedaSinResultadoException;
     C findById(@NonNull C c) throws BusquedaSinResultadoException;
-    C findById(@NonNull InstanciaUnica<ObjectId> cInstance) throws BusquedaSinResultadoException;
+    C findById(@NonNull InstanciaUnica cInstance) throws BusquedaSinResultadoException;
     List<C> findAll();
 }
