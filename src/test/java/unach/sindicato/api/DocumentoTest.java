@@ -1,8 +1,5 @@
 package unach.sindicato.api;
 
-import lombok.NonNull;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.rendering.PDFRenderer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,11 +20,8 @@ import unach.sindicato.api.utils.persistence.Token;
 import unach.sindicato.util.JsonData;
 import unach.sindicato.api.util.PersistenceTest;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -84,19 +78,21 @@ class DocumentoTest implements PersistenceTest {
                 .getBody()
                 .jsonAs(Maestro.class);
 
-        Pdf documento = new Pdf();
-        documento.setFormato(Formatos.ACTA_NACIMIENTO);
-
+        Pdf pdf = new Pdf();
+        pdf.setFormato(Formatos.ACTA_NACIMIENTO);
         try {
             Path path = Paths.get(Objects.requireNonNull(DocumentoTest.class
-                    .getClassLoader()
-                    .getResource("pdf/reporte.pdf")).toURI().getPath());
-            documento.setBytes(Files.readAllBytes(path));
+                            .getClassLoader()
+                            .getResource("pdf/reporte.pdf"))
+                    .toURI()
+                    .getPath());
+            pdf.setBytes(Files.readAllBytes(path));
         } catch (URISyntaxException | IOException e) {
             throw new RuntimeException(e);
         }
+
         erwin.getDocumentos().clear();
-        erwin.getDocumentos().add(documento);
+        erwin.getDocumentos().add(pdf);
 
         var saveResponse = requester.post(
                 "http://localhost:%s/udd/api/maestros/add/documentos".formatted(port),

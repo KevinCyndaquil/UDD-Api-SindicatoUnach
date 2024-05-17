@@ -6,6 +6,6 @@ import unach.sindicato.api.utils.UddUser;
 
 @Repository
 public interface UddUserRepository <U extends UddUser> extends UddRepository<U> {
-    @Query("{'correo_institucional.direccion': ?0}")
-    U findByCorreo_institucional(String direccion);
+    @Query("{'correo_institucional.direccion': ?0, _class:  ?1}")
+    U findByCorreo_institucional(String direccion, String _class);
 }

@@ -9,6 +9,7 @@ import unach.sindicato.api.service.auth.AuthService;
 import unach.sindicato.api.service.auth.JwtService;
 import unach.sindicato.api.service.persistence.PersistenceService;
 import unach.sindicato.api.utils.Correo;
+import unach.sindicato.api.utils.Roles;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +23,11 @@ public class UddAdminService implements PersistenceService<UddAdmin>, AuthServic
     }
 
     @Override
+    public @NonNull Roles expectedRol() {
+        return Roles.administrador;
+    }
+
+    @Override
     public @NonNull UddAdminRepository repository() {
         return repository;
     }
@@ -32,6 +38,6 @@ public class UddAdminService implements PersistenceService<UddAdmin>, AuthServic
     }
 
     public UddAdmin findByCorreo(@NonNull Correo correo) {
-        return repository.findByCorreo_institucional(correo.getDireccion());
+        return repository.findByCorreo_institucional(correo.getDireccion(), clazz().getName());
     }
 }

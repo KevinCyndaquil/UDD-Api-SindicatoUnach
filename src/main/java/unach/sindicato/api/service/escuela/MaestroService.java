@@ -14,6 +14,7 @@ import unach.sindicato.api.service.documentos.DocumentoService;
 import unach.sindicato.api.service.persistence.PersistenceService;
 import unach.sindicato.api.service.auth.JwtService;
 import unach.sindicato.api.utils.Correo;
+import unach.sindicato.api.utils.Roles;
 import unach.sindicato.api.utils.errors.CollectionNoActualizadaException;
 import unach.sindicato.api.utils.errors.DocumentoSinPdfException;
 
@@ -43,12 +44,17 @@ public class MaestroService implements PersistenceService<Maestro>, AuthService<
         return jwtService;
     }
 
+    @Override
+    public @NonNull Roles expectedRol() {
+        return Roles.maestro;
+    }
+
     public Set<Maestro> findByFacultad(@NonNull Facultad facultad) {
         return repository.findByFacultadId(facultad.getId());
     }
 
     public Maestro findByCorreo(@NonNull Correo correo) {
-        return repository.findByCorreo_institucional(correo.getDireccion());
+        return repository.findByCorreo_institucional(correo.getDireccion(), clazz().getName());
     }
 
     @Transactional

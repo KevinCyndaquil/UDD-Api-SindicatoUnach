@@ -73,6 +73,7 @@ public abstract class UddUser implements Unico, Nombrable, UserDetails {
             groups = InitInfo.class)
     String password;
     @JsonIgnore String salt;
+    Roles rol;
 
     @Field("rol")@JsonGetter("rol")
     public abstract @NonNull Roles getRol();

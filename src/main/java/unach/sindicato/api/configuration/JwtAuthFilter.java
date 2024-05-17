@@ -23,6 +23,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import unach.sindicato.api.service.auth.JwtService;
 import unach.sindicato.api.service.auth.UddUserService;
+import unach.sindicato.api.utils.Roles;
 import unach.sindicato.api.utils.UddLogger;
 import unach.sindicato.api.utils.UddMapper;
 import unach.sindicato.api.utils.UddUser;
@@ -86,7 +87,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if (SecurityContextHolder.getContext().getAuthentication() != null) return;
 
-        UddUser user = uddUserService.readById(id);
+        Roles rol = jwtService.parse(token).get("rol", Roles.class);
+        UddUser user = uddUserService.readById(id, rol);
         logger.info("User is enterring: " + user);
 
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(

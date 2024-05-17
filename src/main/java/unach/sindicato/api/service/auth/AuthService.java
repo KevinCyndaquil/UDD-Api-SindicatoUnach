@@ -5,8 +5,8 @@ import org.springframework.transaction.annotation.Transactional;
 import unach.sindicato.api.repository.UddUserRepository;
 import unach.sindicato.api.service.persistence.FindService;
 import unach.sindicato.api.service.persistence.SaveService;
+import unach.sindicato.api.utils.Roles;
 import unach.sindicato.api.utils.UddUser;
-import unach.sindicato.api.utils.errors.BusquedaSinResultadoException;
 import unach.sindicato.api.utils.errors.CredencialInvalidaException;
 import unach.sindicato.api.utils.errors.ProcesoEncriptacionException;
 import unach.sindicato.api.utils.persistence.Credential;
@@ -25,6 +25,7 @@ public interface AuthService <U extends UddUser> extends SaveService<U>, FindSer
 
     @Override@NonNull UddUserRepository<U> repository();
     @NonNull JwtService jwtService();
+    @NonNull Roles expectedRol();
 
     /**
      * Genera una salt aleatoria.
@@ -87,14 +88,14 @@ public interface AuthService <U extends UddUser> extends SaveService<U>, FindSer
     }
 
     default Token<U> login(@NonNull Credential credential) {
-        U user = repository().findByCorreo_institucional(credential.getCorreo().getDireccion());
+        U user = repository().findByCorreo_institucional(credential.getCorreo().getDireccion(), clazz().getName());
         if (user == null)
-            throw new CredencialInvalidaException(credential);
+            throw new CredencialInvalidaException(credential, expectedRol());
 
         try {
             String encryptedPsswrd = hashPasswordWithSalt(credential.getPassword(), user.getSalt());
             if (!user.getPassword().equals(encryptedPsswrd))
-                throw new CredencialInvalidaException(credential);
+                throw new CredencialInvalidaException(credential, expectedRol());
 
             final String token = jwtService().generate(user);
             return Token.<U>builder()

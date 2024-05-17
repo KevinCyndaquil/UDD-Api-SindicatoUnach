@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.validation.annotation.Validated;
+import unach.sindicato.api.persistence.escuela.Maestro;
 import unach.sindicato.api.utils.Formatos;
 import unach.sindicato.api.utils.groups.InitInfo;
 import unach.sindicato.api.utils.groups.IdInfo;
@@ -41,6 +43,7 @@ public class Documento implements Unico {
     @Null(message = "No se debe proporcionar una propiedad reporte",
             groups = InitInfo.class)
     @Valid Reporte reporte;
+    Contents content;
 
     @Field("content")
     @JsonProperty("content")
@@ -85,4 +88,8 @@ public class Documento implements Unico {
     public int hashCode() {
         return formato.hashCode();
     }
+
+    @Validated(IdInfo.class)
+    public record Entrada(@Valid Documento documento,
+                          @Valid Maestro maestro) {}
 }

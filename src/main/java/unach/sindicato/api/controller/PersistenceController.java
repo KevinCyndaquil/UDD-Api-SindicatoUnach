@@ -31,8 +31,8 @@ public interface PersistenceController <C extends Unico> {
 
     @NonNull PersistenceService<C> service();
 
-    @PreAuthorize("hasAuthority('administrador')")
     @PostMapping
+    @PreAuthorize("hasAuthority('administrador')")
     default UddResponse save(@RequestBody@Validated({InitInfo.class, NotId.class}) C c) {
         logger.post(getClass());
 
@@ -44,8 +44,8 @@ public interface PersistenceController <C extends Unico> {
                 .build();
     }
 
-    @PreAuthorize("hasAuthority('administrador')")
     @PostMapping("/all")
+    @PreAuthorize("hasAuthority('administrador')")
     default UddResponse save(@RequestBody@Validated({InitInfo.class, NotId.class}) Set<C> c) {
         logger.post(getClass());
 
@@ -57,8 +57,8 @@ public interface PersistenceController <C extends Unico> {
                 .build();
     }
 
-    @PreAuthorize("hasAuthority('administrador')")
     @GetMapping
+    @PreAuthorize("hasAuthority('administrador')")
     default UddResponse findAll() {
         logger.get(getClass());
 
@@ -70,8 +70,8 @@ public interface PersistenceController <C extends Unico> {
                 .build();
     }
 
-    @PreAuthorize("hasAuthority('administrador')")
     @PostMapping("/where/id/is")
+    @PreAuthorize("hasAuthority('administrador')")
     default UddResponse findById(@RequestBody@Valid InstanciaUnica instancia) {
         logger.post(getClass());
 
@@ -83,8 +83,8 @@ public interface PersistenceController <C extends Unico> {
                 .build();
     }
 
-    @PreAuthorize("hasAuthority('administrador')")
     @PutMapping
+    @PreAuthorize("hasAuthority('administrador')")
     default UddResponse update(@RequestBody@Validated({InitInfo.class, NotId.class}) C c) {
         logger.put(getClass());
 
@@ -98,8 +98,8 @@ public interface PersistenceController <C extends Unico> {
                 .build();
     }
 
-    @PreAuthorize("hasAuthority('administrador')")
     @DeleteMapping
+    @PreAuthorize("hasAuthority('administrador')")
     default UddResponse delete(@NonNull@RequestParam("id") ObjectId id) {
         logger.delete(getClass());
 
