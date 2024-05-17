@@ -57,21 +57,21 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             response(httpResonse, UddResponse.error()
                     .status(HttpStatus.UNAUTHORIZED)
                     .message("Token provided is unrecognized")
-                    .error(Errors.TOKEN_INVALID_ERROR)
+                    .error(Errors.INVALID_TOKEN_ERROR)
                     .build());
         } catch (ExpiredJwtException e) {
             logger.error(e, "JWT Filter Error");
             response(httpResonse, UddResponse.error()
                     .status(HttpStatus.UNAUTHORIZED)
                     .message("Token expired")
-                    .error(Errors.TOKEN_INVALID_ERROR)
+                    .error(Errors.INVALID_TOKEN_ERROR)
                     .build());
         } catch (UsernameNotFoundException e) {
             logger.error(e, "JWT Filter Error");
             response(httpResonse, UddResponse.error()
                     .status(HttpStatus.UNAUTHORIZED)
                     .message("User in token is unrecognized")
-                    .error(Errors.TOKEN_INVALID_ERROR)
+                    .error(Errors.INVALID_TOKEN_ERROR)
                     .build());
         }
     }

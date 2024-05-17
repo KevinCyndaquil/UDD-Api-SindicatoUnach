@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 
 @Data
 @ToString(exclude = "bytes", callSuper = true)
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, exclude = "bytes")
 @Document(collection = "documentos")
 public class Pdf extends Documento {
     byte[] bytes;

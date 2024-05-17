@@ -84,7 +84,7 @@ public class MaestroService implements PersistenceService<Maestro>, AuthService<
                 });
 
         maestroSaved.getDocumentos().forEach(pdf -> {
-            Documento documentoSaved = documentoService.saveOrUpdate(pdf);
+            Documento documentoSaved = documentoService.saveOrUpdate((Pdf) pdf);
             pdf.setId(documentoSaved.getId());
         });
 

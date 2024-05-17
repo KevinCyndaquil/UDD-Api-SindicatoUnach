@@ -17,4 +17,7 @@ public interface UddRepository <C> extends MongoRepository<C, ObjectId> {
 
     @Query("{_class: ?0}")
     List<C> findAll(@NonNull String _class);
+
+    @Query("{$or: ?0}")
+    List<C> findAll(@NonNull Object[] matches);
 }

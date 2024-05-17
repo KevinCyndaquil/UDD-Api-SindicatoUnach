@@ -28,6 +28,9 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -83,9 +86,15 @@ class DocumentoTest implements PersistenceTest {
 
         Pdf documento = new Pdf();
         documento.setFormato(Formatos.ACTA_NACIMIENTO);
-        documento.setBytes(generate(Objects.requireNonNull(DocumentoTest.class
-                .getClassLoader()
-                .getResource("pdf/reporte.pdf"))));
+
+        try {
+            Path path = Paths.get(Objects.requireNonNull(DocumentoTest.class
+                    .getClassLoader()
+                    .getResource("pdf/reporte.pdf")).toURI().getPath());
+            documento.setBytes(Files.readAllBytes(path));
+        } catch (URISyntaxException | IOException e) {
+            throw new RuntimeException(e);
+        }
         erwin.getDocumentos().clear();
         erwin.getDocumentos().add(documento);
 
@@ -98,30 +107,5 @@ class DocumentoTest implements PersistenceTest {
         assertNotNull(saveResponse.getBody());
 
         System.out.println(saveResponse.getBody());
-    }
-
-    private byte @NonNull[] generate(@NonNull URL url) {
-        File pdfFile;
-
-        try {
-            pdfFile = new File(url.toURI());
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-
-        try (PDDocument document = PDDocument.load(pdfFile);
-             ByteArrayOutputStream baos = new ByteArrayOutputStream();) {
-
-            PDFRenderer renderer = new PDFRenderer(document);
-
-            for (int page = 0; page < document.getNumberOfPages(); page++) {
-                BufferedImage image = renderer.renderImageWithDPI(0, 300);
-                ImageIO.write(image, "jpg", baos);
-            }
-
-            return baos.toByteArray();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

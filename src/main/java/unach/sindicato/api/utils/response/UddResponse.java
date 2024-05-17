@@ -7,8 +7,6 @@ import org.springframework.http.ResponseEntity;
 import unach.sindicato.api.utils.UddMapper;
 import unach.sindicato.api.utils.errors.Errors;
 
-import java.util.Map;
-
 /**
  * Objeto que se utiliza como respuesta del servidor ante cualquier situación necesaria.
  * Se utiliza en lugar de ResponseEntity y se deben utilizar sus métodos estaticos.
@@ -36,7 +34,7 @@ public class UddResponse extends ResponseEntity<UddResponse.Properties> {
     protected UddResponse(HttpStatus status, String message, @NonNull Object collection) {
         super(Properties.builder()
                 .message(message)
-                .json(new UddMapper().convertValue(collection, UddMapper.HASH_MAP))
+                .json(collection)
                 .build(), status);
     }
 
@@ -56,7 +54,7 @@ public class UddResponse extends ResponseEntity<UddResponse.Properties> {
     public static class Properties {
         Errors error;
         @NonNull String message;
-        Map<String, Object> json;
+        Object json;
         Boolean result;
 
         public <T> T jsonAs(TypeReference<T> _class) {
