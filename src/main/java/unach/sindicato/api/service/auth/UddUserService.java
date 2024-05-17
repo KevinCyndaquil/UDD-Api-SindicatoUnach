@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import unach.sindicato.api.persistence.administracion.Administrador;
+import unach.sindicato.api.persistence.escuela.UddAdmin;
 import unach.sindicato.api.persistence.escuela.Maestro;
 import unach.sindicato.api.utils.UddUser;
 
@@ -25,7 +25,7 @@ public class UddUserService implements UserDetailsService {
                 Criteria.where("_id").is(id)
                         .orOperator(
                                 Criteria.where("_class").is(Maestro.class.getName()),
-                                Criteria.where("_class").is(Administrador.class.getName())
+                                Criteria.where("_class").is(UddAdmin.class.getName())
                         ));
         UddUser user = mongoTemplate.findOne(query, UddUser.class);
 

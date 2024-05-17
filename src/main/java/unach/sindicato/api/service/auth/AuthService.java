@@ -2,7 +2,7 @@ package unach.sindicato.api.service.auth;
 
 import lombok.NonNull;
 import org.springframework.transaction.annotation.Transactional;
-import unach.sindicato.api.service.UddService;
+import unach.sindicato.api.repository.UddUserRepository;
 import unach.sindicato.api.service.persistence.FindService;
 import unach.sindicato.api.service.persistence.SaveService;
 import unach.sindicato.api.utils.UddUser;
@@ -20,8 +20,9 @@ import java.security.SecureRandom;
  * Servicio de autenticación genérico para la API de UDD.
  * @param <U> el tipo elemetal del UddUser de este servicio.
  */
-public interface AuthService <U extends UddUser> extends UddService<U>, SaveService<U>, FindService<U> {
+public interface AuthService <U extends UddUser> extends SaveService<U>, FindService<U> {
 
+    @Override@NonNull UddUserRepository<U> repository();
     @NonNull JwtService jwtService();
 
     /**
@@ -85,7 +86,7 @@ public interface AuthService <U extends UddUser> extends UddService<U>, SaveServ
     }
 
     default Token<U> login(@NonNull Credential credential) {
-        U user = findById(credential.getId());
+        U user = repository().findByCorreo_institucional(credential.getCorreo().getDireccion());
 
         try {
             String encryptedPsswrd = hashPasswordWithSalt(credential.getPassword(), user.getSalt());

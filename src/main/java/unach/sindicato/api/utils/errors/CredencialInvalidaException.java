@@ -7,6 +7,6 @@ public class CredencialInvalidaException extends RuntimeException {
 
     public CredencialInvalidaException(@NonNull Credential credential) {
         super("Credenciales %s=%s son incorrectas"
-                .formatted(credential.getId(), credential.getPassword()));
+                .formatted(credential.getCorreo(), credential.getPassword()));
     }
 }

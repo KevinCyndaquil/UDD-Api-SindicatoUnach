@@ -1,4 +1,4 @@
-package unach.sindicato.api.persistence.administracion;
+package unach.sindicato.api.persistence.escuela;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Data;
@@ -12,12 +12,12 @@ import unach.sindicato.api.utils.Roles;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Document(collection = "administracion")
-public class Administrador extends UddUser {
+@Document(collection = "escuela")
+public class UddAdmin extends UddUser {
 
     @Override
     public @NonNull Roles getRol() {
-        return Roles.ADMINISTRADOR;
+        return Roles.administrador;
     }
 
     @Override

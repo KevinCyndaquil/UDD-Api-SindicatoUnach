@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -12,17 +13,21 @@ import lombok.NonNull;
 import org.bson.types.ObjectId;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * ObjectMapper generalizado para su uso en la API de UDD.
  */
 public class UddMapper extends ObjectMapper {
+    public static TypeReference<Map<String, Object>> HASH_MAP = new TypeReference<>() {};
+
     public UddMapper() {
         registerModule(new JavaTimeModule());
         registerModule(objectIdModule());
 
         setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
+        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     }
@@ -47,14 +52,5 @@ public class UddMapper extends ObjectMapper {
         });
 
         return module;
-    }
-
-    public static @NonNull String writeValue(Object value) {
-        try {
-            UddMapper mapper = new UddMapper();
-            return mapper.writeValueAsString(value);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

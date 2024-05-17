@@ -1,19 +1,19 @@
 package unach.sindicato.api.persistence.escuela;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NonNull;
+import lombok.*;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import unach.sindicato.api.persistence.documentos.Documento;
 import unach.sindicato.api.utils.UddUser;
 import unach.sindicato.api.utils.Roles;
 import unach.sindicato.api.utils.Telefono;
+import unach.sindicato.api.utils.groups.DocumentInfo;
 import unach.sindicato.api.utils.groups.InitInfo;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -21,13 +21,15 @@ import java.util.Set;
  * para su administración.
  */
 
-@JsonTypeName("maestro")
-
 @Data
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @Document(collection = "escuela")
 public class Maestro extends UddUser {
-    @Valid@DBRef(lazy = true) Set<Documento> documentos;
+    @DBRef(lazy = true)
+    @NotEmpty(message = "Se requiere al menos un documento",
+            groups = DocumentInfo.class)
+    Set<Documento> documentos = new HashSet<>();
     @NotNull(message = "Se requiere un télefono",
             groups = InitInfo.class)
     @Valid Telefono telefono;
@@ -38,7 +40,7 @@ public class Maestro extends UddUser {
 
     @Override
     public @NonNull Roles getRol() {
-        return Roles.MAESTRO;
+        return Roles.maestro;
     }
 
     @Override

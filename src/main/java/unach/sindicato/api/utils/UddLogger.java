@@ -33,6 +33,10 @@ public class UddLogger {
                 .formatted(now(), message, at));
     }
 
+    public void error(Exception ex) {
+        logger.error("%s".formatted(now()), ex);
+    }
+
     public void error(Exception ex, String message) {
         logger.error("%s: %s".formatted(now(), message), ex);
     }

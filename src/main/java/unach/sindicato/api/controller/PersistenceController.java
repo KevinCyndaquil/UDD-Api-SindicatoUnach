@@ -4,8 +4,8 @@ import jakarta.validation.Valid;
 import lombok.NonNull;
 import org.bson.types.ObjectId;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import unach.sindicato.api.service.persistence.PersistenceService;
@@ -31,7 +31,7 @@ public interface PersistenceController <C extends Unico> {
 
     @NonNull PersistenceService<C> service();
 
-    @Transactional
+    @PreAuthorize("hasAuthority('administrador')")
     @PostMapping
     default UddResponse save(@RequestBody@Validated({InitInfo.class, NotId.class}) C c) {
         logger.post(getClass());
@@ -44,20 +44,21 @@ public interface PersistenceController <C extends Unico> {
                 .build();
     }
 
-    @Transactional
+    @PreAuthorize("hasAuthority('administrador')")
     @PostMapping("/all")
     default UddResponse save(@RequestBody@Validated({InitInfo.class, NotId.class}) Set<C> c) {
         logger.post(getClass());
 
         return UddResponse.collection()
                 .status(HttpStatus.CREATED)
-                .message("%s fueron persistidos correctamente"
+                .message("%ss fueron persistidos correctamente"
                         .formatted(service().clazz().getSimpleName()))
                 .collection(service().save(c))
                 .build();
     }
 
-    @GetMapping()
+    @PreAuthorize("hasAuthority('administrador')")
+    @GetMapping
     default UddResponse findAll() {
         logger.get(getClass());
 
@@ -69,6 +70,7 @@ public interface PersistenceController <C extends Unico> {
                 .build();
     }
 
+    @PreAuthorize("hasAuthority('administrador')")
     @PostMapping("/where/id/is")
     default UddResponse findById(@RequestBody@Valid InstanciaUnica instancia) {
         logger.post(getClass());
@@ -81,7 +83,7 @@ public interface PersistenceController <C extends Unico> {
                 .build();
     }
 
-    @Transactional
+    @PreAuthorize("hasAuthority('administrador')")
     @PutMapping
     default UddResponse update(@RequestBody@Validated({InitInfo.class, NotId.class}) C c) {
         logger.put(getClass());
@@ -96,7 +98,7 @@ public interface PersistenceController <C extends Unico> {
                 .build();
     }
 
-    @Transactional
+    @PreAuthorize("hasAuthority('administrador')")
     @DeleteMapping
     default UddResponse delete(@NonNull@RequestParam("id") ObjectId id) {
         logger.delete(getClass());

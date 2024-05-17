@@ -1,12 +1,13 @@
 package unach.sindicato.api.utils.response;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NonNull;
+import com.fasterxml.jackson.core.type.TypeReference;
+import lombok.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import unach.sindicato.api.utils.UddMapper;
 import unach.sindicato.api.utils.errors.Errors;
+
+import java.util.Map;
 
 /**
  * Objeto que se utiliza como respuesta del servidor ante cualquier situación necesaria.
@@ -14,21 +15,18 @@ import unach.sindicato.api.utils.errors.Errors;
  */
 
 @Getter
-public class UddResponse extends ResponseEntity<ResponseProperties> {
-    ResponseProperties properties;
+public class UddResponse extends ResponseEntity<UddResponse.Properties> {
 
     @Builder(builderMethodName = "info", builderClassName = "ResponseInfoBuilder")
     protected UddResponse(HttpStatus status, String message) {
-        super(ResponseProperties.builder()
-                .status(status)
+        super(Properties.builder()
                 .message(message)
                 .build(), status);
     }
 
     @Builder(builderMethodName = "error", builderClassName = "ResponseErrorBuilder")
     protected UddResponse(HttpStatus status, @NonNull Errors error, String message) {
-        super(ResponseProperties.builder()
-                .status(status)
+        super(Properties.builder()
                 .error(error)
                 .message(message)
                 .build(), status);
@@ -36,10 +34,39 @@ public class UddResponse extends ResponseEntity<ResponseProperties> {
 
     @Builder(builderMethodName = "collection", builderClassName = "ResponseCollectionBuilder")
     protected UddResponse(HttpStatus status, String message, @NonNull Object collection) {
-        super(ResponseProperties.builder()
-                .status(status)
+        super(Properties.builder()
                 .message(message)
-                .json(UddMapper.writeValue(collection))
+                .json(new UddMapper().convertValue(collection, UddMapper.HASH_MAP))
                 .build(), status);
+    }
+
+    @Builder(builderMethodName = "result", builderClassName = "ResponseResultBuilder")
+    protected UddResponse(HttpStatus status, String message, boolean result) {
+        super(Properties.builder()
+                .message(message)
+                .result(result)
+                .build(), status);
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Properties {
+        Errors error;
+        @NonNull String message;
+        Map<String, Object> json;
+        Boolean result;
+
+        public <T> T jsonAs(TypeReference<T> _class) {
+            if (json == null) return null;
+            return new UddMapper().convertValue(json, _class);
+        }
+
+        public <T> T jsonAs(Class<T> _class) {
+            if (json == null) return null;
+            return new UddMapper().convertValue(json, _class);
+        }
     }
 }

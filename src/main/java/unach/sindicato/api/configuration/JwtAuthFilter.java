@@ -91,7 +91,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                 user,
-                Credential.of(user),
+                Credential.by(user),
                 user.getAuthorities());
         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpRequest));
 
@@ -109,12 +109,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private void response(@NonNull HttpServletResponse httpResponse, @NonNull UddResponse message) {
         try {
-            httpResponse.setStatus(message.getProperties().getStatus().value());
+            httpResponse.setStatus(message.getStatusCode().value());
             httpResponse.setContentType("application/json");
 
-            OutputStream os = httpResponse.getOutputStream();
-            mapper.writeValue(os, message);
-            os.flush();
+            try (OutputStream stream = httpResponse.getOutputStream()) {
+                mapper.writeValue(stream, message.getBody());
+            }
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

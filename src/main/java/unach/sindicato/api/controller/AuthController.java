@@ -3,7 +3,6 @@ package unach.sindicato.api.controller;
 import jakarta.validation.Valid;
 import lombok.NonNull;
 import org.springframework.http.HttpStatus;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +19,6 @@ public interface AuthController <U extends UddUser> {
 
     @NonNull AuthService<U> service();
 
-    @Transactional
     @PostMapping("/auth/register")
     default UddResponse register(@RequestBody@Validated({InitInfo.class, NotId.class}) U u) {
         logger.post(getClass());
@@ -37,11 +35,13 @@ public interface AuthController <U extends UddUser> {
     default UddResponse login(@RequestBody@Valid Credential credential) {
         logger.post(getClass());
 
+        var token = service().login(credential);
+
         return UddResponse.collection()
                 .status(HttpStatus.OK)
-                .message("%s logeado correctamente"
-                        .formatted(service().clazz().getSimpleName()))
-                .collection(service().login(credential))
+                .message("%s %s logeado correctamente"
+                        .formatted(service().clazz().getSimpleName(), token.getCollection().getNombre()))
+                .collection(token)
                 .build();
     }
 }

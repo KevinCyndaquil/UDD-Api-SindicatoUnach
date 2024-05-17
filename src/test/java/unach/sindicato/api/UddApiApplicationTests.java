@@ -8,6 +8,6 @@ class UddApiApplicationTests {
 
     @Test
     void contextLoads() {
-    }
 
+    }
 }

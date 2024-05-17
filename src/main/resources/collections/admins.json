@@ -1,0 +1,12 @@
+[
+  {
+    "nombre": "KEVIN ALEJANDRO",
+    "apellido_paterno": "FRANCISCO",
+    "apellido_materno": "GONZÁLEZ",
+    "correo_institucional": {
+      "direccion": "kevin.francisco90@unach.mx"
+    },
+    "password": "qw6xdg7sB!",
+    "rol": "administrador"
+  }
+]

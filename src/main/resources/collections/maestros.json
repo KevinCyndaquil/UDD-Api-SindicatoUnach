@@ -1,14 +1,28 @@
 [
   {
-    "nombre": "ERWIN SANTIAGO",
+    "nombre": "ERWIN PRUEBA",
     "apellido_paterno": "BERMUDEZ",
     "apellido_materno": "CASILLAS",
-    "correo": {
+    "correo_institucional": {
       "direccion": "erwin.bermudez@unach.mx"
     },
     "password": "paracetamol23!",
     "telefono": {
       "numero": "+(52) 962 782 1242"
-    }
+    },
+    "rol": "maestro"
+  },
+  {
+    "nombre": "ERWIN SANTIAGO",
+    "apellido_paterno": "BERMUDEZ",
+    "apellido_materno": "CASILLAS",
+    "correo_institucional": {
+      "direccion": "erwin.bermudez@unach.mx"
+    },
+    "password": "paracetamol23!",
+    "telefono": {
+      "numero": "+(52) 962 782 1242"
+    },
+    "rol": "maestro"
   }
 ]
