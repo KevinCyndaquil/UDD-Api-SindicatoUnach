@@ -14,7 +14,7 @@ import unach.sindicato.api.service.documentos.DocumentoService;
 import unach.sindicato.api.service.persistence.PersistenceService;
 import unach.sindicato.api.utils.Correo;
 import unach.sindicato.api.utils.Roles;
-import unach.sindicato.api.utils.errors.CollectionNoActualizadaException;
+import unach.sindicato.api.utils.errors.DocumentoNoActualizadoException;
 
 import java.util.Set;
 
@@ -70,7 +70,7 @@ public class UddAdminService implements PersistenceService<UddAdmin>, AuthServic
                 .reduce(true, Boolean::logicalAnd);
 
         if (!result)
-            throw new CollectionNoActualizadaException(maestroSaved.getDocumentos(), getClass());
+            throw new DocumentoNoActualizadoException(maestroSaved.getDocumentos(), getClass());
 
         return maestroService.update(maestroSaved);
     }

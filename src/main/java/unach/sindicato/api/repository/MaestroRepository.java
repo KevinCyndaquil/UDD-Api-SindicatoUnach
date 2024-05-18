@@ -9,4 +9,6 @@ import java.util.Set;
 @Repository
 public interface MaestroRepository extends UddUserRepository<Maestro> {
     Set<Maestro> findByFacultadId(ObjectId facultadId);
+    Set<Maestro> findByEstatus(Maestro.Estatus estatus);
+    Set<Maestro> findByFacultadCampus(String facultadCampus);
 }

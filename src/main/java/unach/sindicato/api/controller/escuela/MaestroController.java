@@ -6,12 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import unach.sindicato.api.controller.AuthController;
-import unach.sindicato.api.controller.PersistenceController;
+import unach.sindicato.api.controller.persistence.PersistenceController;
+import unach.sindicato.api.persistence.documentos.Documento;
 import unach.sindicato.api.persistence.escuela.Facultad;
 import unach.sindicato.api.persistence.escuela.Maestro;
 import unach.sindicato.api.service.escuela.MaestroService;
@@ -20,6 +18,10 @@ import unach.sindicato.api.utils.groups.DocumentInfo;
 import unach.sindicato.api.utils.groups.IdInfo;
 import unach.sindicato.api.utils.groups.InitInfo;
 import unach.sindicato.api.utils.response.UddResponse;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/maestros")
@@ -39,7 +41,41 @@ public class MaestroController implements PersistenceController<Maestro>, AuthCo
     }
 
     @PreAuthorize("hasAuthority('administrador')")
-    @PostMapping("/where/facultad/is")
+    @GetMapping("/estatus")
+    public UddResponse getEstatus() {
+        List<Map<String, String>> estatus = Arrays.stream(Maestro.Estatus.values())
+                .map(e -> Map.of("name", e.name()))
+                .toList();
+
+        return UddResponse.collection()
+                .status(HttpStatus.OK)
+                .collection(estatus)
+                .message("Estatus de maestro encontrados correctamente")
+                .build();
+    }
+
+    @PreAuthorize("hasAuthority('administrador')")
+    @GetMapping("/where/estatus-documento-is")
+    public UddResponse findByEstatusDocumento(@RequestParam("estatus") Documento.Estatus estatus) {
+        return UddResponse.collection()
+                .status(HttpStatus.OK)
+                .collection(service.findByEstatusDocumento(estatus))
+                .message("Documentos encontrados correctamente")
+                .build();
+    }
+
+    @PreAuthorize("hasAuthority('administrador')")
+    @GetMapping("/where/estatus-is")
+    public UddResponse findByEstatus(@RequestParam("estatus") Maestro.Estatus estatus) {
+        return UddResponse.collection()
+                .status(HttpStatus.OK)
+                .collection(service.findByEstatus(estatus))
+                .message("Maestros encontrados correctamente")
+                .build();
+    }
+
+    @PreAuthorize("hasAuthority('administrador')")
+    @PostMapping("/where/facultad-is")
     public UddResponse findByFacultad(@RequestBody@Validated(IdInfo.class) Facultad facultad) {
         AuthController.logger.post(MaestroController.class);
 
@@ -51,7 +87,19 @@ public class MaestroController implements PersistenceController<Maestro>, AuthCo
     }
 
     @PreAuthorize("hasAuthority('administrador')")
-    @PostMapping("/where/correo/is")
+    @GetMapping("/where/campus-is")
+    public UddResponse findByCampus(@RequestParam("campus") String campus) {
+        AuthController.logger.post(MaestroController.class);
+
+        return UddResponse.collection()
+                .status(HttpStatus.OK)
+                .collection(service.findByCampus(campus))
+                .message("Maestros encontrados correctamente")
+                .build();
+    }
+
+    @PreAuthorize("hasAuthority('administrador')")
+    @PostMapping("/where/correo-is")
     public UddResponse findByCorreo(@RequestBody@Validated(InitInfo.class) Correo correo) {
         AuthController.logger.post(MaestroController.class);
 

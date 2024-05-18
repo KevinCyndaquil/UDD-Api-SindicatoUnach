@@ -23,8 +23,8 @@ import unach.sindicato.api.service.persistence.PersistenceService;
 import unach.sindicato.api.service.auth.JwtService;
 import unach.sindicato.api.utils.Correo;
 import unach.sindicato.api.utils.Roles;
-import unach.sindicato.api.utils.errors.CollectionNoActualizadaException;
-import unach.sindicato.api.utils.errors.DocumentoSinPdfException;
+import unach.sindicato.api.utils.errors.DocumentoNoActualizadoException;
+import unach.sindicato.api.utils.errors.PdfSinBytesException;
 
 import java.util.List;
 import java.util.Set;
@@ -63,8 +63,16 @@ public class MaestroService implements PersistenceService<Maestro>, AuthService<
         return repository.findByFacultadId(facultad.getId());
     }
 
+    public Set<Maestro> findByCampus(@NonNull String campus) {
+        return repository.findByFacultadCampus(campus);
+    }
+
     public Maestro findByCorreo(@NonNull Correo correo) {
         return repository.findByCorreo_institucional(correo.getDireccion(), clazz().getName());
+    }
+
+    public Set<Maestro> findByEstatus(@NonNull Maestro.Estatus estatus) {
+        return repository.findByEstatus(estatus);
     }
 
     public List<Maestro> findByEstatusDocumento(@NonNull Documento.Estatus estatus) {
@@ -72,11 +80,11 @@ public class MaestroService implements PersistenceService<Maestro>, AuthService<
                 Aggregation.match(Criteria.where("_class").is(Maestro.class.getName())),
                 LookupOperation.newLookup()
                         .from("documentos")
-                        .localField("documentos.")
+                        .localField("documentos.$id")
                         .foreignField("_id")
-                        .as("documentos_ref"),
-                Aggregation.unwind("documentos_ref"),
-                Aggregation.match(Criteria.where("documentos_ref.estatus").is(estatus))
+                        .as("documentos"),
+                Aggregation.project().andExclude("oa.documentos.bytes"),
+                Aggregation.match(Criteria.where("documentos.reporte.motivo").is(estatus))
         );
 
         AggregationResults<Maestro> result = mongoTemplate.aggregate(
@@ -84,6 +92,8 @@ public class MaestroService implements PersistenceService<Maestro>, AuthService<
                 "escuela",
                 Maestro.class
         );
+
+        System.out.println(result.getMappedResults());
         return result.getMappedResults();
     }
 
@@ -93,7 +103,7 @@ public class MaestroService implements PersistenceService<Maestro>, AuthService<
                 .stream()
                 .map(d -> {
                     if (d.getClass().equals(Pdf.class)) return (Pdf) d;
-                    throw new DocumentoSinPdfException(d);
+                    throw new PdfSinBytesException(d);
                 })
                 .collect(Collectors.toSet());
 
@@ -124,7 +134,7 @@ public class MaestroService implements PersistenceService<Maestro>, AuthService<
         });
 
         if (!update(maestroSaved))
-            throw new CollectionNoActualizadaException(maestroSaved, getClass());
+            throw new DocumentoNoActualizadoException(maestroSaved, getClass());
         return true;
     }
 

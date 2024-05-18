@@ -15,7 +15,7 @@ import unach.sindicato.api.repository.UddRepository;
 import unach.sindicato.api.service.persistence.PersistenceService;
 import unach.sindicato.api.service.auth.EncryptorService;
 import unach.sindicato.api.utils.errors.BusquedaSinResultadoException;
-import unach.sindicato.api.utils.errors.CollectionNoActualizadaException;
+import unach.sindicato.api.utils.errors.DocumentoNoActualizadoException;
 import unach.sindicato.api.utils.errors.ErrorEncriptacionException;
 import unach.sindicato.api.utils.errors.NombrableRepetidoException;
 
@@ -89,7 +89,7 @@ public class DocumentoService implements PersistenceService<Documento> {
         if (pdf.getId() != null)
             if (repository.existsById(pdf.getId()))
                 if (!update(pdf))
-                    throw new CollectionNoActualizadaException(pdf, getClass());
+                    throw new DocumentoNoActualizadoException(pdf, getClass());
                 else return findById(pdf.getId());
         return repository.save(pdf);
     }

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import unach.sindicato.api.controller.AuthController;
-import unach.sindicato.api.controller.PersistenceController;
+import unach.sindicato.api.controller.persistence.PersistenceController;
 import unach.sindicato.api.persistence.escuela.Maestro;
 import unach.sindicato.api.persistence.escuela.UddAdmin;
 import unach.sindicato.api.service.escuela.UddAdminService;
