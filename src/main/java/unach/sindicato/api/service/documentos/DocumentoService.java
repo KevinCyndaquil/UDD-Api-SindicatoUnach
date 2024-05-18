@@ -47,14 +47,16 @@ public class DocumentoService implements PersistenceService<Documento> {
 
     @Override
     public Documento save(@NonNull Documento documento) throws NombrableRepetidoException, DuplicateKeyException, MongoWriteException {
-        if (documento instanceof Pdf pdf) encrypt(pdf);
+        if (documento instanceof Pdf pdf)
+            if (!pdf.isEncrypted()) encrypt(pdf);
         return PersistenceService.super.save(documento);
     }
 
     @Override
     public Documento findById(ObjectId id) throws BusquedaSinResultadoException {
         Documento documento = PersistenceService.super.findById(id);
-        if (documento instanceof Pdf pdf) decrypt(pdf);
+        if (documento instanceof Pdf pdf)
+            if (pdf.isEncrypted()) decrypt(pdf);
         return documento;
     }
 
@@ -69,29 +71,26 @@ public class DocumentoService implements PersistenceService<Documento> {
         return repository.findAll(matches)
                 .stream()
                 .peek(d -> {
-                    if (d instanceof Pdf pdf) decrypt(pdf);
+                    if (d instanceof Pdf pdf)
+                        if (pdf.isEncrypted()) decrypt(pdf);
                 })
                 .toList();
     }
 
     @Override
     public boolean update(@NonNull Documento documento) {
-        if (documento instanceof Pdf pdf) encrypt(pdf);
+        if (documento instanceof Pdf pdf)
+            if (!pdf.isEncrypted()) encrypt(pdf);
         return PersistenceService.super.update(documento);
     }
 
     @Transactional
     public Documento saveOrUpdate(@NonNull Pdf pdf) {
-        System.out.println("ddddddddddddddddddddddddddddd " + pdf.getId());
-        System.out.println(pdf.getReporte().getMotivo());
-
         if (pdf.getId() != null)
-            if (repository.existsById(pdf.getId())) {
-                System.out.println("HOllaaaaaaaa");
+            if (repository.existsById(pdf.getId()))
                 if (!update(pdf))
                     throw new CollectionNoActualizadaException(pdf, getClass());
                 else return findById(pdf.getId());
-            }
         return repository.save(pdf);
     }
 
@@ -100,6 +99,7 @@ public class DocumentoService implements PersistenceService<Documento> {
 
         try {
             encryptorService.encrypt(pdf);
+            pdf.setEncrypted(true);
         } catch (NoSuchPaddingException | BadPaddingException | IllegalBlockSizeException | InvalidKeyException |
                  InvalidAlgorithmParameterException | NoSuchAlgorithmException e) {
             throw new ErrorEncriptacionException(pdf);
@@ -111,6 +111,7 @@ public class DocumentoService implements PersistenceService<Documento> {
 
         try {
             encryptorService.decrypt(pdf);
+            pdf.setEncrypted(false);
         } catch (NoSuchPaddingException | BadPaddingException | IllegalBlockSizeException | InvalidKeyException | InvalidAlgorithmParameterException | NoSuchAlgorithmException e) {
             throw new ErrorEncriptacionException(pdf);
         }

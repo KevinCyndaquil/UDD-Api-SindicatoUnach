@@ -87,7 +87,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if (SecurityContextHolder.getContext().getAuthentication() != null) return;
 
-        Roles rol = jwtService.parse(token).get("rol", Roles.class);
+        Roles rol = Roles.of(jwtService.parse(token).get("rol", String.class));
         UddUser user = uddUserService.readById(id, rol);
         logger.info("User is enterring: " + user);
 

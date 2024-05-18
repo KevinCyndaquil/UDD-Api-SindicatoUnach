@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 import unach.sindicato.api.repository.UddUserRepository;
 import unach.sindicato.api.service.persistence.FindService;
 import unach.sindicato.api.service.persistence.SaveService;
+import unach.sindicato.api.service.persistence.UpdateService;
 import unach.sindicato.api.utils.Roles;
 import unach.sindicato.api.utils.UddUser;
 import unach.sindicato.api.utils.errors.CredencialInvalidaException;
@@ -12,64 +13,33 @@ import unach.sindicato.api.utils.errors.ProcesoEncriptacionException;
 import unach.sindicato.api.utils.persistence.Credential;
 import unach.sindicato.api.utils.persistence.Token;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 
 /**
  * Servicio de autenticación genérico para la API de UDD.
  * @param <U> el tipo elemetal del UddUser de este servicio.
  */
-public interface AuthService <U extends UddUser> extends SaveService<U>, FindService<U> {
+public interface AuthService <U extends UddUser> extends SaveService<U>, FindService<U>, UpdateService<U> {
 
     @Override@NonNull UddUserRepository<U> repository();
     @NonNull JwtService jwtService();
     @NonNull Roles expectedRol();
 
-    /**
-     * Genera una salt aleatoria.
-     * @return La sal generada.
-     */
-    private @NonNull String generateSalt() {
-        byte[] salt = new byte[16];
-        new SecureRandom().nextBytes(salt);
-        return new String(salt, StandardCharsets.UTF_8);
-    }
+    @Override
+    default boolean update(@NonNull U u) {
+        var uSaved = repository().findById(u.getId());
+        if (uSaved.isEmpty()) return false;
 
-    /**
-     * Encripta una contraseña con una salt.
-     * @param password La contraseña a encriptar.
-     * @param salt La salt a utilizar.
-     * @return La contraseña encriptada.
-     * @throws NoSuchAlgorithmException cuando el algoritmo usado no puede ser implementado.
-     */
-    private @NonNull String hashPasswordWithSalt(@NonNull String password, @NonNull String salt)
-            throws NoSuchAlgorithmException {
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] saltBytes = salt.getBytes(StandardCharsets.UTF_8);
-        byte[] passwordBytes = password.getBytes(StandardCharsets.UTF_8);
-        byte[] inputBytes = new byte[saltBytes.length + passwordBytes.length];
-
-        System.arraycopy(saltBytes, 0, inputBytes, 0, saltBytes.length);
-        System.arraycopy(passwordBytes, 0, inputBytes, saltBytes.length, passwordBytes.length);
-
-        byte[] hash = digest.digest(inputBytes);
-        StringBuilder hexString = new StringBuilder();
-
-        for (byte b : hash) {
-            String hex = String.format("%02x", b);
-            hexString.append(hex);
-        }
-
-        return hexString.toString();
+        u.setSalt(uSaved.get().getSalt());
+        repository().save(u);
+        return true;
     }
 
     @Transactional
     default Token<U> register(@NonNull U u) {
         try {
-            String salt = generateSalt();
-            final String encryptedPassword = hashPasswordWithSalt(
+            String salt = EncryptorService.generateSalt();
+            final String encryptedPassword = EncryptorService.hashPasswordWithSalt(
                     u.getPassword(),
                     salt);
             u.setPassword(encryptedPassword);
@@ -93,7 +63,7 @@ public interface AuthService <U extends UddUser> extends SaveService<U>, FindSer
             throw new CredencialInvalidaException(credential, expectedRol());
 
         try {
-            String encryptedPsswrd = hashPasswordWithSalt(credential.getPassword(), user.getSalt());
+            String encryptedPsswrd = EncryptorService.hashPasswordWithSalt(credential.getPassword(), user.getSalt());
             if (!user.getPassword().equals(encryptedPsswrd))
                 throw new CredencialInvalidaException(credential, expectedRol());
 

@@ -21,7 +21,7 @@ public final class EncryptorService {
      * Genera una salt aleatoria.
      * @return La sal generada.
      */
-    public @NonNull String generateSalt() {
+    public static @NonNull String generateSalt() {
         byte[] salt = new byte[16];
         new SecureRandom().nextBytes(salt);
         return new String(salt, StandardCharsets.UTF_8);
@@ -34,7 +34,7 @@ public final class EncryptorService {
      * @return La contraseña encriptada.
      * @throws NoSuchAlgorithmException cuando el algoritmo usado no puede ser implementado.
      */
-    public @NonNull String hashPasswordWithSalt(@NonNull String password, @NonNull String salt)
+    public static @NonNull String hashPasswordWithSalt(@NonNull String password, @NonNull String salt)
             throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         byte[] saltBytes = salt.getBytes(StandardCharsets.UTF_8);

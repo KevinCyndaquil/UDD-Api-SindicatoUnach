@@ -10,11 +10,14 @@ import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import unach.sindicato.api.repository.UddRepository;
 
 @Configuration
 @RequiredArgsConstructor
 @EnableTransactionManagement
+@EnableMongoRepositories(basePackageClasses = UddRepository.class)
 public class MongoConfig extends AbstractMongoClientConfiguration {
     final MongoProperties mongoProperties;
 

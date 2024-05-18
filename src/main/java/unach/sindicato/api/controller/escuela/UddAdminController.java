@@ -11,9 +11,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import unach.sindicato.api.controller.AuthController;
 import unach.sindicato.api.controller.PersistenceController;
+import unach.sindicato.api.persistence.escuela.Maestro;
 import unach.sindicato.api.persistence.escuela.UddAdmin;
 import unach.sindicato.api.service.escuela.UddAdminService;
 import unach.sindicato.api.utils.Correo;
+import unach.sindicato.api.utils.groups.DocumentInfo;
+import unach.sindicato.api.utils.groups.IdInfo;
 import unach.sindicato.api.utils.groups.InitInfo;
 import unach.sindicato.api.utils.response.UddResponse;
 
@@ -37,6 +40,18 @@ public class UddAdminController implements PersistenceController<UddAdmin>, Auth
                 .status(HttpStatus.OK)
                 .collection(service.findByCorreo(correo))
                 .message("Admin encontrado correctamente")
+                .build();
+    }
+
+    @PostMapping("/add-reportes")
+    public UddResponse addReporte(
+            @RequestBody@Validated({DocumentInfo.class, IdInfo.class}) Maestro maestro) {
+        AuthController.logger.post(MaestroController.class);
+
+        return UddResponse.collection()
+                .status(HttpStatus.OK)
+                .collection(service.addReportes(maestro))
+                .message("Reportes actualizados correctamente")
                 .build();
     }
 }

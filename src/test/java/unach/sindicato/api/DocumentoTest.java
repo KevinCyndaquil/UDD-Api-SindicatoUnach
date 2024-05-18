@@ -9,6 +9,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import unach.sindicato.api.persistence.documentos.Documento;
 import unach.sindicato.api.persistence.documentos.Pdf;
 import unach.sindicato.api.persistence.escuela.Maestro;
 import unach.sindicato.api.util.UddRequester;
@@ -93,9 +94,60 @@ class DocumentoTest implements PersistenceTest {
 
         erwin.getDocumentos().clear();
         erwin.getDocumentos().add(pdf);
+        erwin.setEstatus(null);
 
         var saveResponse = requester.post(
                 "http://localhost:%s/udd/api/maestros/add/documentos".formatted(port),
+                token,
+                erwin
+        );
+        assertEquals(saveResponse.getStatusCode(), HttpStatus.OK);
+        assertNotNull(saveResponse.getBody());
+
+        System.out.println(saveResponse.getBody());
+    }
+
+    @Test
+    public void testAddReporte() {
+        Credential credential = JsonData.CREDENTIALS.first(Credential.class)
+                .orElseThrow();
+
+        var loginResponse = requester.login(
+                "http://localhost:" + port + "/udd/api/admin/auth/login",
+                credential
+        );
+        assertEquals(loginResponse.getStatusCode(), HttpStatus.OK);
+        assertNotNull(loginResponse.getBody());
+
+        String token = loginResponse
+                .getBody()
+                .jsonAs(Token.class)
+                .getToken();
+
+        Correo correo = new Correo();
+        correo.setDireccion("erwin.bermudez@unach.mx");
+
+        var getByCorreoResponse = requester.post(
+                "http://localhost:%s/udd/api/maestros/where/correo/is".formatted(port),
+                token,
+                correo
+        );
+        assertEquals(getByCorreoResponse.getStatusCode(), HttpStatus.OK);
+        assertNotNull(getByCorreoResponse.getBody());
+
+        Maestro erwin = getByCorreoResponse
+                .getBody()
+                .jsonAs(Maestro.class);
+
+        Documento.Reporte validadoReporte = new Documento.Reporte(
+                Documento.Estatus.ACEPTADO,
+                "Excelente"
+        );
+
+        erwin.getDocumentos().forEach(doc -> doc.setReporte(validadoReporte));
+
+        var saveResponse = requester.post(
+                "http://localhost:%s/udd/api/admin/add-reportes".formatted(port),
                 token,
                 erwin
         );

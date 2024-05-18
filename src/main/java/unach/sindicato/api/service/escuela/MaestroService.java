@@ -2,6 +2,14 @@ package unach.sindicato.api.service.escuela;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.LookupOperation;
+import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
+import org.springframework.data.mongodb.core.mapping.event.BeforeSaveEvent;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import unach.sindicato.api.persistence.documentos.Documento;
@@ -18,6 +26,7 @@ import unach.sindicato.api.utils.Roles;
 import unach.sindicato.api.utils.errors.CollectionNoActualizadaException;
 import unach.sindicato.api.utils.errors.DocumentoSinPdfException;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,6 +36,7 @@ public class MaestroService implements PersistenceService<Maestro>, AuthService<
     final MaestroRepository repository;
     final JwtService jwtService;
 
+    final MongoTemplate mongoTemplate;
     final DocumentoService documentoService;
 
     @Override
@@ -57,6 +67,26 @@ public class MaestroService implements PersistenceService<Maestro>, AuthService<
         return repository.findByCorreo_institucional(correo.getDireccion(), clazz().getName());
     }
 
+    public List<Maestro> findByEstatusDocumento(@NonNull Documento.Estatus estatus) {
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.match(Criteria.where("_class").is(Maestro.class.getName())),
+                LookupOperation.newLookup()
+                        .from("documentos")
+                        .localField("documentos.")
+                        .foreignField("_id")
+                        .as("documentos_ref"),
+                Aggregation.unwind("documentos_ref"),
+                Aggregation.match(Criteria.where("documentos_ref.estatus").is(estatus))
+        );
+
+        AggregationResults<Maestro> result = mongoTemplate.aggregate(
+                aggregation,
+                "escuela",
+                Maestro.class
+        );
+        return result.getMappedResults();
+    }
+
     @Transactional
     public boolean addDocumentos(@NonNull Maestro maestro) {
         Set<Pdf> documentos = maestro.getDocumentos()
@@ -67,9 +97,7 @@ public class MaestroService implements PersistenceService<Maestro>, AuthService<
                 })
                 .collect(Collectors.toSet());
 
-        System.out.println(documentos);
         Maestro maestroSaved = findById(maestro);
-        System.out.println(maestroSaved.getDocumentos());
         Documento.Reporte reporteSinValidar = Documento.Reporte.builder()
                 .motivo(Documento.Estatus.REQUIERE_VALIDAR)
                 .build();
@@ -87,6 +115,7 @@ public class MaestroService implements PersistenceService<Maestro>, AuthService<
 
                     pdfSaved.setReporte(reporteSinValidar);
                     pdfSaved.setBytes(pdf.getBytes());
+                    pdfSaved.setEncrypted(false);
                 });
 
         maestroSaved.getDocumentos().forEach(pdf -> {
@@ -97,5 +126,19 @@ public class MaestroService implements PersistenceService<Maestro>, AuthService<
         if (!update(maestroSaved))
             throw new CollectionNoActualizadaException(maestroSaved, getClass());
         return true;
+    }
+
+    @Component
+    public static class EventListener extends AbstractMongoEventListener<Maestro> {
+        @Override
+        public void onBeforeSave(@NonNull BeforeSaveEvent<Maestro> event) {
+            if (event.getDocument() == null) return;
+
+            Maestro maestro = event.getSource();
+            maestro.setEstatus(maestro.validar());
+
+            event.getDocument().put("estatus", maestro.getEstatus());
+            event.getDocument().put("rol", maestro.getRol());
+        }
     }
 }

@@ -51,12 +51,15 @@ public class Documento implements Unico {
         return Contents.none;
     }
 
+    @AllArgsConstructor
     public enum Estatus {
-        ACEPTADO,
-        INCORRECTO,
-        NO_ACEPTADO,
-        REQUIERE_ACTUALIZAR,
-        REQUIERE_VALIDAR
+        ACEPTADO("#51D97F"),
+        INCORRECTO("#F02137"),
+        NO_ACEPTADO("#F02137"),
+        REQUIERE_ACTUALIZAR("#F47F04"),
+        REQUIERE_VALIDAR("#5F6368");
+
+        public final String hexColor;
     }
 
     public enum Contents {

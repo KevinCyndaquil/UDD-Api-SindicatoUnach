@@ -10,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import unach.sindicato.api.service.persistence.PersistenceService;
 import unach.sindicato.api.utils.UddLogger;
+import unach.sindicato.api.utils.groups.IdInfo;
 import unach.sindicato.api.utils.groups.InitInfo;
 import unach.sindicato.api.utils.groups.NotId;
 import unach.sindicato.api.utils.persistence.InstanciaUnica;
@@ -85,7 +86,7 @@ public interface PersistenceController <C extends Unico> {
 
     @PutMapping
     @PreAuthorize("hasAuthority('administrador')")
-    default UddResponse update(@RequestBody@Validated({InitInfo.class, NotId.class}) C c) {
+    default UddResponse update(@RequestBody@Validated({InitInfo.class, IdInfo.class}) C c) {
         logger.put(getClass());
 
         String message = service().update(c) ?
