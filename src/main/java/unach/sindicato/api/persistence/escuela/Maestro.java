@@ -27,7 +27,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @Document(collection = "escuela")
 public class Maestro extends UddUser {
-    @DBRef(lazy = true)
+    @DBRef
     @NotEmpty(message = "Se requiere al menos un documento",
             groups = DocumentInfo.class)
     Set<Documento> documentos = new HashSet<>();

@@ -60,6 +60,11 @@ public class DocumentoService implements PersistenceService<Documento> {
         return documento;
     }
 
+    public Documento findByIdExludingBytes(@NonNull ObjectId id) throws BusquedaSinResultadoException {
+        return repository.findByIdExludingBytes(id)
+                .orElseThrow(() -> new BusquedaSinResultadoException(clazz(), "_id", id));
+    }
+
     @Override
     public List<Documento> findAll() {
         Object[] matches = Arrays.stream(new Class<?>[] {

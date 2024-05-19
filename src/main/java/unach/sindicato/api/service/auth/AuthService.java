@@ -30,7 +30,15 @@ public interface AuthService <U extends UddUser> extends SaveService<U>, FindSer
         var uSaved = repository().findById(u.getId());
         if (uSaved.isEmpty()) return false;
 
-        u.setSalt(uSaved.get().getSalt());
+        try {
+            String salt = EncryptorService.generateSalt();
+            String encryptedPassword = EncryptorService.hashPasswordWithSalt(u.getPassword(), salt);
+            u.setPassword(encryptedPassword);
+            u.setSalt(salt);
+        } catch (NoSuchAlgorithmException e) {
+            throw new ProcesoEncriptacionException(u);
+        }
+
         repository().save(u);
         return true;
     }
@@ -59,11 +67,13 @@ public interface AuthService <U extends UddUser> extends SaveService<U>, FindSer
 
     default Token<U> login(@NonNull Credential credential) {
         U user = repository().findByCorreo_institucional(credential.getCorreo().getDireccion(), clazz().getName());
+        System.out.println("holaaaa " + user);
         if (user == null)
             throw new CredencialInvalidaException(credential, expectedRol());
 
         try {
             String encryptedPsswrd = EncryptorService.hashPasswordWithSalt(credential.getPassword(), user.getSalt());
+
             if (!user.getPassword().equals(encryptedPsswrd))
                 throw new CredencialInvalidaException(credential, expectedRol());
 
