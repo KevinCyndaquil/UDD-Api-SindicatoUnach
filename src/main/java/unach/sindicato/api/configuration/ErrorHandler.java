@@ -11,7 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import unach.sindicato.api.utils.UddLogger;
-import unach.sindicato.api.utils.errors.*;
+import unach.sindicato.api.utils.error.*;
 import unach.sindicato.api.utils.response.UddResponse;
 
 @RestControllerAdvice

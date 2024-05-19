@@ -1,11 +1,10 @@
 package unach.sindicato.api.controller.documentos;
 
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import unach.sindicato.api.controller.persistence.FindController;
 import unach.sindicato.api.persistence.documentos.Documento;
 import unach.sindicato.api.persistence.documentos.Pdf;
 import unach.sindicato.api.persistence.escuela.Maestro;
@@ -18,17 +17,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+@Validated
+@EnableMethodSecurity
+@CrossOrigin(origins = "*", methods = {RequestMethod.POST, RequestMethod.GET})
+
 @RestController
 @RequestMapping("documentos")
 @RequiredArgsConstructor
-public class DocumentoController implements FindController<Documento> {
+public class DocumentoController  {
     final DocumentoService service;
     final MaestroService maestroService;
-
-    @Override
-    public @NonNull DocumentoService service() {
-        return service;
-    }
 
     @GetMapping("/estatus")
     public UddResponse getEstatus() {

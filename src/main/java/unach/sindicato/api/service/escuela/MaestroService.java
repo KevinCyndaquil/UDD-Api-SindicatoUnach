@@ -2,6 +2,7 @@ package unach.sindicato.api.service.escuela;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -23,8 +24,9 @@ import unach.sindicato.api.service.persistence.PersistenceService;
 import unach.sindicato.api.service.auth.JwtService;
 import unach.sindicato.api.utils.Correo;
 import unach.sindicato.api.utils.Roles;
-import unach.sindicato.api.utils.errors.DocumentoNoActualizadoException;
-import unach.sindicato.api.utils.errors.PdfSinBytesException;
+import unach.sindicato.api.utils.error.BusquedaSinResultadoException;
+import unach.sindicato.api.utils.error.DocumentoNoActualizadoException;
+import unach.sindicato.api.utils.error.PdfSinBytesException;
 
 import java.util.List;
 import java.util.Set;
@@ -57,6 +59,17 @@ public class MaestroService implements PersistenceService<Maestro>, AuthService<
     @Override
     public @NonNull Roles expectedRol() {
         return Roles.maestro;
+    }
+
+    @Override
+    public Maestro findById(@NonNull ObjectId id) throws BusquedaSinResultadoException {
+        return repository.findByIdExcludingBytes(id, Maestro.class.getName())
+                .orElseThrow(() -> new BusquedaSinResultadoException(clazz(), "_id", id));
+    }
+
+    @Override
+    public List<Maestro> findAll() {
+        return repository.findAllExcludingBytes(Maestro.class.getName());
     }
 
     public Set<Maestro> findByFacultad(@NonNull Facultad facultad) {

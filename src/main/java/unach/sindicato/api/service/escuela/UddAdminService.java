@@ -14,7 +14,7 @@ import unach.sindicato.api.service.documentos.DocumentoService;
 import unach.sindicato.api.service.persistence.PersistenceService;
 import unach.sindicato.api.utils.Correo;
 import unach.sindicato.api.utils.Roles;
-import unach.sindicato.api.utils.errors.DocumentoNoActualizadoException;
+import unach.sindicato.api.utils.error.DocumentoNoActualizadoException;
 
 import java.util.Set;
 

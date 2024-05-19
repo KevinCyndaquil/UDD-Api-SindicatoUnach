@@ -1,6 +1,5 @@
 package unach.sindicato.api.controller;
 
-import jakarta.validation.Valid;
 import lombok.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -12,7 +11,7 @@ import unach.sindicato.api.utils.UddLogger;
 import unach.sindicato.api.utils.UddUser;
 import unach.sindicato.api.utils.groups.InitInfo;
 import unach.sindicato.api.utils.groups.NotId;
-import unach.sindicato.api.utils.persistence.Credential;
+import unach.sindicato.api.utils.persistence.Credencial;
 import unach.sindicato.api.utils.response.UddResponse;
 
 public interface AuthController <U extends UddUser> {
@@ -33,10 +32,10 @@ public interface AuthController <U extends UddUser> {
     }
 
     @PostMapping("/auth/login")
-    default UddResponse login(@RequestBody@Valid Credential credential) {
+    default UddResponse login(@RequestBody@Validated({InitInfo.class}) Credencial credencial) {
         logger.post(getClass());
 
-        var token = service().login(credential);
+        var token = service().login(credencial);
 
         return UddResponse.collection()
                 .status(HttpStatus.OK)

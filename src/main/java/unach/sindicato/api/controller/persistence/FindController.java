@@ -29,9 +29,9 @@ public interface FindController <C extends Unico> {
                 .build();
     }
 
-    @PostMapping("/where/id/is")
+    @PostMapping("/where/id-is")
     @PreAuthorize("hasAuthority('administrador')")
-    default UddResponse findById(@RequestBody @Valid InstanciaUnica instancia) {
+    default UddResponse findById(@RequestBody@Valid InstanciaUnica instancia) {
         return UddResponse.collection()
                 .status(HttpStatus.OK)
                 .message("%s encontrado correctamente"

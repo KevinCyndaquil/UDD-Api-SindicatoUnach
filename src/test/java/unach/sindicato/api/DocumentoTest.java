@@ -16,7 +16,7 @@ import unach.sindicato.api.util.UddRequester;
 import unach.sindicato.api.utils.Correo;
 import unach.sindicato.api.utils.Formatos;
 import unach.sindicato.api.utils.UddMapper;
-import unach.sindicato.api.utils.persistence.Credential;
+import unach.sindicato.api.utils.persistence.Credencial;
 import unach.sindicato.api.utils.persistence.Token;
 import unach.sindicato.util.JsonData;
 import unach.sindicato.api.util.PersistenceTest;
@@ -49,12 +49,12 @@ class DocumentoTest implements PersistenceTest {
     @Test
     @Override
     public void testSave() {
-        Credential credential = JsonData.CREDENTIALS.first(Credential.class)
+        Credencial credencial = JsonData.CREDENTIALS.first(Credencial.class)
                 .orElseThrow();
 
         var loginResponse = requester.login(
                 "http://localhost:" + port + "/udd/api/admin/auth/login",
-                credential
+                credencial
         );
         assertEquals(loginResponse.getStatusCode(), HttpStatus.OK);
         assertNotNull(loginResponse.getBody());
@@ -109,12 +109,12 @@ class DocumentoTest implements PersistenceTest {
 
     @Test
     public void testAddReporte() {
-        Credential credential = JsonData.CREDENTIALS.first(Credential.class)
+        Credencial credencial = JsonData.CREDENTIALS.first(Credencial.class)
                 .orElseThrow();
 
         var loginResponse = requester.login(
                 "http://localhost:" + port + "/udd/api/admin/auth/login",
-                credential
+                credencial
         );
         assertEquals(loginResponse.getStatusCode(), HttpStatus.OK);
         assertNotNull(loginResponse.getBody());

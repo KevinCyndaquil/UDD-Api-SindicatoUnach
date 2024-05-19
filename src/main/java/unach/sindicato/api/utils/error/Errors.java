@@ -1,4 +1,4 @@
-package unach.sindicato.api.utils.errors;
+package unach.sindicato.api.utils.error;
 
 public enum Errors {
     INVALID_TOKEN_ERROR,

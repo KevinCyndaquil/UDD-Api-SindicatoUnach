@@ -16,7 +16,7 @@ import unach.sindicato.api.persistence.escuela.Maestro;
 import unach.sindicato.api.persistence.escuela.UddAdmin;
 import unach.sindicato.api.repository.MaestroRepository;
 import unach.sindicato.api.utils.UddMapper;
-import unach.sindicato.api.utils.persistence.Credential;
+import unach.sindicato.api.utils.persistence.Credencial;
 import unach.sindicato.api.utils.persistence.Token;
 import unach.sindicato.api.utils.response.UddResponse;
 import unach.sindicato.util.JsonData;
@@ -43,12 +43,12 @@ public class MaestroTest implements PersistenceTest {
 
     @Test
     public void testSave() {
-        Credential credential = JsonData.CREDENTIALS.first(Credential.class)
+        Credencial credencial = JsonData.CREDENTIALS.first(Credencial.class)
                 .orElseThrow();
 
         var loginResponse = restTemplate.postForEntity(
                 "http://localhost:" + port + "/udd/api/admin/auth/login",
-                credential,
+                credencial,
                 UddResponse.Properties.class
         );
         assertEquals(loginResponse.getStatusCode(), HttpStatus.OK);

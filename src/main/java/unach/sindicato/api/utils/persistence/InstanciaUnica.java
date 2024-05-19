@@ -10,5 +10,5 @@ import org.bson.types.ObjectId;
 
 @Data
 public class InstanciaUnica {
-    @NotNull ObjectId id;
+    @NotNull(message = "Se debe proporcionar un id") ObjectId id;
 }

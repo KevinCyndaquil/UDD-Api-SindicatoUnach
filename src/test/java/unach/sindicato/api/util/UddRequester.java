@@ -6,7 +6,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import unach.sindicato.api.utils.persistence.Credential;
+import unach.sindicato.api.utils.persistence.Credencial;
 import unach.sindicato.api.utils.response.UddResponse;
 
 public class UddRequester {
@@ -16,10 +16,10 @@ public class UddRequester {
         this.restTemplate = restTemplate;
     }
 
-    public ResponseEntity<UddResponse.Properties> login(String url, Credential credential) {
+    public ResponseEntity<UddResponse.Properties> login(String url, Credencial credencial) {
         return restTemplate.postForEntity(
                 url,
-                credential,
+                credencial,
                 UddResponse.Properties.class
         );
     }

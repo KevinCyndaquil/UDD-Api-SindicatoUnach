@@ -27,8 +27,8 @@ import unach.sindicato.api.utils.Roles;
 import unach.sindicato.api.utils.UddLogger;
 import unach.sindicato.api.utils.UddMapper;
 import unach.sindicato.api.utils.UddUser;
-import unach.sindicato.api.utils.errors.Errors;
-import unach.sindicato.api.utils.persistence.Credential;
+import unach.sindicato.api.utils.error.Errors;
+import unach.sindicato.api.utils.persistence.Credencial;
 import unach.sindicato.api.utils.response.UddResponse;
 
 import java.io.IOException;
@@ -93,7 +93,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                 user,
-                Credential.by(user),
+                Credencial.by(user),
                 user.getAuthorities());
         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpRequest));
 

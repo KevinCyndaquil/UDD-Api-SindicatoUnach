@@ -14,10 +14,10 @@ import unach.sindicato.api.repository.DocumentoRepository;
 import unach.sindicato.api.repository.UddRepository;
 import unach.sindicato.api.service.persistence.PersistenceService;
 import unach.sindicato.api.service.auth.EncryptorService;
-import unach.sindicato.api.utils.errors.BusquedaSinResultadoException;
-import unach.sindicato.api.utils.errors.DocumentoNoActualizadoException;
-import unach.sindicato.api.utils.errors.ErrorEncriptacionException;
-import unach.sindicato.api.utils.errors.NombrableRepetidoException;
+import unach.sindicato.api.utils.error.BusquedaSinResultadoException;
+import unach.sindicato.api.utils.error.DocumentoNoActualizadoException;
+import unach.sindicato.api.utils.error.ErrorEncriptacionException;
+import unach.sindicato.api.utils.error.NombrableRepetidoException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;

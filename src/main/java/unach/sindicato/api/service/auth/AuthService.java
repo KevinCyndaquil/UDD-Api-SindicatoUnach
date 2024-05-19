@@ -8,9 +8,9 @@ import unach.sindicato.api.service.persistence.SaveService;
 import unach.sindicato.api.service.persistence.UpdateService;
 import unach.sindicato.api.utils.Roles;
 import unach.sindicato.api.utils.UddUser;
-import unach.sindicato.api.utils.errors.CredencialInvalidaException;
-import unach.sindicato.api.utils.errors.ProcesoEncriptacionException;
-import unach.sindicato.api.utils.persistence.Credential;
+import unach.sindicato.api.utils.error.CredencialInvalidaException;
+import unach.sindicato.api.utils.error.ProcesoEncriptacionException;
+import unach.sindicato.api.utils.persistence.Credencial;
 import unach.sindicato.api.utils.persistence.Token;
 
 import java.security.NoSuchAlgorithmException;
@@ -65,17 +65,16 @@ public interface AuthService <U extends UddUser> extends SaveService<U>, FindSer
                 .build();
     }
 
-    default Token<U> login(@NonNull Credential credential) {
-        U user = repository().findByCorreo_institucional(credential.getCorreo().getDireccion(), clazz().getName());
-        System.out.println("holaaaa " + user);
+    default Token<U> login(@NonNull Credencial credencial) {
+        U user = repository().findByCorreo_institucional(credencial.getCorreo().getDireccion(), clazz().getName());
         if (user == null)
-            throw new CredencialInvalidaException(credential, expectedRol());
+            throw new CredencialInvalidaException(credencial, expectedRol());
 
         try {
-            String encryptedPsswrd = EncryptorService.hashPasswordWithSalt(credential.getPassword(), user.getSalt());
+            String encryptedPsswrd = EncryptorService.hashPasswordWithSalt(credencial.getPassword(), user.getSalt());
 
             if (!user.getPassword().equals(encryptedPsswrd))
-                throw new CredencialInvalidaException(credential, expectedRol());
+                throw new CredencialInvalidaException(credencial, expectedRol(), "contraseña incorrecta");
 
             final String token = jwtService().generate(user);
             return Token.<U>builder()

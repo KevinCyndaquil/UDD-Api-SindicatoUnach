@@ -5,7 +5,7 @@ import lombok.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import unach.sindicato.api.utils.UddMapper;
-import unach.sindicato.api.utils.errors.Errors;
+import unach.sindicato.api.utils.error.Errors;
 
 /**
  * Objeto que se utiliza como respuesta del servidor ante cualquier situación necesaria.

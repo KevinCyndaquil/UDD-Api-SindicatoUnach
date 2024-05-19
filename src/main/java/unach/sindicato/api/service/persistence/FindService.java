@@ -3,7 +3,7 @@ package unach.sindicato.api.service.persistence;
 import lombok.NonNull;
 import org.bson.types.ObjectId;
 import unach.sindicato.api.service.UddService;
-import unach.sindicato.api.utils.errors.BusquedaSinResultadoException;
+import unach.sindicato.api.utils.error.BusquedaSinResultadoException;
 import unach.sindicato.api.utils.persistence.InstanciaUnica;
 import unach.sindicato.api.utils.persistence.Unico;
 
