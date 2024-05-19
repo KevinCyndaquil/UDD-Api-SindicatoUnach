@@ -60,7 +60,7 @@ public interface AuthService <U extends UddUser> extends SaveService<U>, FindSer
         String token = jwtService().generate(user);
         return Token.<U>builder()
                 .token(token)
-                .collection(user)
+                .document(user)
                 .expires_in(jwtService().parse(token).getExpiration())
                 .build();
     }
@@ -79,7 +79,7 @@ public interface AuthService <U extends UddUser> extends SaveService<U>, FindSer
             final String token = jwtService().generate(user);
             return Token.<U>builder()
                     .token(token)
-                    .collection(user)
+                    .document(user)
                     .expires_in(jwtService().parse(token).getExpiration())
                     .build();
         } catch (NoSuchAlgorithmException e) {

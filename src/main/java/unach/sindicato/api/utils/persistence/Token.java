@@ -11,8 +11,8 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public final class Token <C> {
-    C collection;
+public final class Token <D> {
+    D document;
     String token;
     Date expires_in;
 }

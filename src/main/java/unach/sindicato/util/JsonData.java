@@ -10,11 +10,11 @@ import java.util.*;
 
 public enum JsonData {
     MAESTROS(Objects.requireNonNull(JsonData.class.getClassLoader().getResource(
-            "collections/maestros.json"))),
+            "documents/maestros.json"))),
     ADMINS(Objects.requireNonNull(JsonData.class.getClassLoader().getResource(
-            "collections/admins.json"))),
+            "documents/admins.json"))),
     CREDENTIALS(Objects.requireNonNull(JsonData.class.getClassLoader().getResource(
-            "collections/credentials.json"))),;
+            "documents/credentials.json"))),;
 
     final URL url;
 
@@ -29,6 +29,10 @@ public enum JsonData {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public @NonNull Optional<Map<String, Object>> first() {
+        return content().stream().findFirst();
     }
 
     public <T> List<T> content(@NonNull Class<T> _class) {

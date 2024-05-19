@@ -1,7 +1,8 @@
 package unach.sindicato.api;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.junit.jupiter.api.BeforeAll;
+import org.bson.types.ObjectId;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,16 +10,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.http.*;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import unach.sindicato.api.persistence.escuela.Maestro;
-import unach.sindicato.api.persistence.escuela.UddAdmin;
-import unach.sindicato.api.repository.MaestroRepository;
+import unach.sindicato.api.service.escuela.MaestroService;
+import unach.sindicato.api.util.UddRequester;
 import unach.sindicato.api.utils.UddMapper;
 import unach.sindicato.api.utils.persistence.Credencial;
 import unach.sindicato.api.utils.persistence.Token;
-import unach.sindicato.api.utils.response.UddResponse;
 import unach.sindicato.util.JsonData;
 import unach.sindicato.api.util.PersistenceTest;
 
@@ -27,18 +26,17 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = UddApiApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class MaestroTest implements PersistenceTest {
-
     @LocalServerPort int port;
 
+    @Autowired MaestroService service;
     @Autowired TestRestTemplate restTemplate;
     @Autowired UddMapper mapper;
 
-    @Autowired MaestroRepository repository;
-    @Autowired MongoTransactionManager transactionManager;
+    UddRequester requester;
 
-    @BeforeAll
-    static void init() {
-        //TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+    @BeforeEach
+    public void init() {
+        requester = new UddRequester(restTemplate);
     }
 
     @Test
@@ -46,35 +44,36 @@ public class MaestroTest implements PersistenceTest {
         Credencial credencial = JsonData.CREDENTIALS.first(Credencial.class)
                 .orElseThrow();
 
-        var loginResponse = restTemplate.postForEntity(
-                "http://localhost:" + port + "/udd/api/admin/auth/login",
-                credencial,
-                UddResponse.Properties.class
+        var loginResponse = requester.login(
+                "http://localhost:%s/udd/api/admin/auth/login".formatted(port),
+                credencial
         );
         assertEquals(loginResponse.getStatusCode(), HttpStatus.OK);
         assertNotNull(loginResponse.getBody());
 
-        Maestro maestro = JsonData.MAESTROS.first(Maestro.class)
+        String token = loginResponse
+                .getBody()
+                .jsonAs(Token.class)
+                .getToken();
+
+        var maestro = JsonData.MAESTROS.first()
                 .orElseThrow();
 
-        TypeReference<Token<UddAdmin>> reference = new TypeReference<>() {};
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.AUTHORIZATION, "Bearer " +
-                loginResponse.getBody().jsonAs(reference).getToken());
-        headers.set(HttpHeaders.CONTENT_TYPE, "application/json");
-        HttpEntity<?> httpEntity = new HttpEntity<>(maestro, headers);
-
-        var saveResponse = restTemplate.exchange(
-                "http://localhost:" + port + "/udd/api/maestros/auth/register",
-                HttpMethod.POST,
-                httpEntity,
-                UddResponse.Properties.class
+        var saveResponse = requester.post(
+                "http://localhost:%s/udd/api/maestros/auth/register".formatted(port),
+                token,
+                maestro
         );
         assertEquals(saveResponse.getStatusCode(), HttpStatus.CREATED);
         assertNotNull(saveResponse.getBody());
 
-        System.out.println(saveResponse.getBody().getJson());
+        ObjectId maestroId = saveResponse
+                .getBody()
+                .jsonAs(new TypeReference<Token<Maestro>>() {})
+                .getDocument()
+                .getId();
 
-        repository.deleteById(saveResponse.getBody().jsonAs(Maestro.class).getId());
+        boolean deletionResult = service.delete(maestroId);
+        assertTrue(deletionResult);
     }
 }

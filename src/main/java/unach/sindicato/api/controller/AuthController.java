@@ -40,7 +40,7 @@ public interface AuthController <U extends UddUser> {
         return UddResponse.collection()
                 .status(HttpStatus.OK)
                 .message("%s %s logeado correctamente"
-                        .formatted(service().clazz().getSimpleName(), token.getCollection().getNombre()))
+                        .formatted(service().clazz().getSimpleName(), token.getDocument().getNombre()))
                 .collection(token)
                 .build();
     }

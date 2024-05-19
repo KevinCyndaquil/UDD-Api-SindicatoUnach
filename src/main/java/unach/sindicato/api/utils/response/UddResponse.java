@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import unach.sindicato.api.persistence.escuela.Maestro;
 import unach.sindicato.api.utils.UddMapper;
 import unach.sindicato.api.utils.error.Errors;
 
@@ -64,6 +65,7 @@ public class UddResponse extends ResponseEntity<UddResponse.Properties> {
 
         public <T> T jsonAs(Class<T> _class) {
             if (json == null) return null;
+            if (json instanceof Maestro maestro) System.out.println(maestro.getRol());
             return new UddMapper().convertValue(json, _class);
         }
     }
