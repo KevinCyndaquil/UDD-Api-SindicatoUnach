@@ -96,7 +96,7 @@ public class DocumentoService implements PersistenceService<Documento> {
                 if (!update(pdf))
                     throw new DocumentoNoActualizadoException(pdf, getClass());
                 else return findById(pdf.getId());
-        return repository.save(pdf);
+        return save(pdf);
     }
 
     protected void encrypt(@NonNull Pdf pdf) throws ErrorEncriptacionException {

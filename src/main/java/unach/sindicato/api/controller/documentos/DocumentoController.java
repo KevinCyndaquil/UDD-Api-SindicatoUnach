@@ -53,6 +53,8 @@ public class DocumentoController  {
                 .filename(pdf.generateName(maestro))
                 .build());
 
+        System.out.println(pdf.getBytes().length);
+
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(pdf.getBytes());

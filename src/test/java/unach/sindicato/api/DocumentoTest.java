@@ -68,7 +68,7 @@ class DocumentoTest implements PersistenceTest {
         correo.setDireccion("erwin.bermudez@unach.mx");
 
         var getByCorreoResponse = requester.post(
-                "http://localhost:%s/udd/api/maestros/where/correo/is".formatted(port),
+                "http://localhost:%s/udd/api/maestros/where/correo-is".formatted(port),
                 token,
                 correo
         );
@@ -84,7 +84,7 @@ class DocumentoTest implements PersistenceTest {
         try {
             Path path = Paths.get(Objects.requireNonNull(DocumentoTest.class
                             .getClassLoader()
-                            .getResource("pdf/reporte.pdf"))
+                            .getResource("pdf/actividad3.pdf"))
                     .toURI()
                     .getPath());
             pdf.setBytes(Files.readAllBytes(path));
@@ -108,6 +108,24 @@ class DocumentoTest implements PersistenceTest {
     }
 
     @Test
+    @Override
+    public void testFindById() {
+
+    }
+
+    @Test
+    @Override
+    public void testFindAll() {
+
+    }
+
+    @Test
+    @Override
+    public void testUpdate() {
+
+    }
+
+    @Test
     public void testAddReporte() {
         Credencial credencial = JsonData.CREDENTIALS.first(Credencial.class)
                 .orElseThrow();
@@ -128,26 +146,26 @@ class DocumentoTest implements PersistenceTest {
         correo.setDireccion("erwin.bermudez@unach.mx");
 
         var getByCorreoResponse = requester.post(
-                "http://localhost:%s/udd/api/maestros/where/correo/is".formatted(port),
+                "http://localhost:%s/udd/api/maestros/where/correo-is".formatted(port),
                 token,
                 correo
         );
         assertEquals(getByCorreoResponse.getStatusCode(), HttpStatus.OK);
         assertNotNull(getByCorreoResponse.getBody());
 
-        Maestro erwin = getByCorreoResponse
+        var erwin = getByCorreoResponse
                 .getBody()
                 .jsonAs(Maestro.class);
 
-        Documento.Reporte validadoReporte = new Documento.Reporte(
-                Documento.Estatus.ACEPTADO,
-                "Excelente"
-        );
-
-        erwin.getDocumentos().forEach(doc -> doc.setReporte(validadoReporte));
+        Documento.Reporte reporte = Documento.Reporte.motivo(Documento.Estatus.REQUIERE_ACTUALIZAR);
+        reporte.setDescripcion("wey noooooo");
+        erwin.getDocumentos()
+                .stream()
+                .findFirst()
+                .ifPresent(doc -> doc.setReporte(reporte));
 
         var saveResponse = requester.post(
-                "http://localhost:%s/udd/api/admin/add-reportes".formatted(port),
+                "http://localhost:%s/udd/api/admin/add/reportes".formatted(port),
                 token,
                 erwin
         );

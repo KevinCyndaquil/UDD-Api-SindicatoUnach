@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.LookupOperation;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
 import org.springframework.data.mongodb.core.mapping.event.BeforeSaveEvent;
@@ -26,7 +25,6 @@ import unach.sindicato.api.utils.Correo;
 import unach.sindicato.api.utils.Roles;
 import unach.sindicato.api.utils.error.BusquedaSinResultadoException;
 import unach.sindicato.api.utils.error.DocumentoNoActualizadoException;
-import unach.sindicato.api.utils.error.PdfSinBytesException;
 
 import java.util.List;
 import java.util.Set;
@@ -62,14 +60,18 @@ public class MaestroService implements PersistenceService<Maestro>, AuthService<
     }
 
     @Override
-    public Maestro findById(@NonNull ObjectId id) throws BusquedaSinResultadoException {
-        return repository.findByIdExcludingBytes(id, Maestro.class.getName())
-                .orElseThrow(() -> new BusquedaSinResultadoException(clazz(), "_id", id));
-    }
-
-    @Override
     public List<Maestro> findAll() {
         return repository.findAllExcludingBytes(Maestro.class.getName());
+    }
+
+    public Maestro findByIdExcludingPdf(@NonNull ObjectId id) throws BusquedaSinResultadoException {
+        var maestro = AuthService.super.findById(id);
+        maestro.getDocumentos()
+                .stream()
+                .filter(d -> d.getContent().equals(Documento.Contents.pdf))
+                .map(Pdf.class::cast)
+                .forEach(d -> d.setBytes(null));
+        return maestro;
     }
 
     public Set<Maestro> findByFacultad(@NonNull Facultad facultad) {
@@ -100,50 +102,37 @@ public class MaestroService implements PersistenceService<Maestro>, AuthService<
                 Aggregation.match(Criteria.where("documentos.reporte.motivo").is(estatus))
         );
 
-        AggregationResults<Maestro> result = mongoTemplate.aggregate(
+        return mongoTemplate.aggregate(
                 aggregation,
                 "escuela",
                 Maestro.class
-        );
-
-        System.out.println(result.getMappedResults());
-        return result.getMappedResults();
+        ).getMappedResults();
     }
 
     @Transactional
     public boolean addDocumentos(@NonNull Maestro maestro) {
         Set<Pdf> documentos = maestro.getDocumentos()
                 .stream()
-                .map(d -> {
-                    if (d.getClass().equals(Pdf.class)) return (Pdf) d;
-                    throw new PdfSinBytesException(d);
-                })
+                .map(Documento::asPdf)
                 .collect(Collectors.toSet());
 
         Maestro maestroSaved = findById(maestro);
-        Documento.Reporte reporteSinValidar = Documento.Reporte.builder()
-                .motivo(Documento.Estatus.REQUIERE_VALIDAR)
-                .build();
+        documentos.forEach(pdf -> {
+            pdf.setReporte(Documento.Reporte.motivo(Documento.Estatus.REQUIERE_VALIDAR));
+            if (maestroSaved.getDocumentos().add(pdf)) return;
 
-        documentos.stream()
-                .peek(pdf -> pdf.setReporte(reporteSinValidar))
-                .forEach(pdf -> {
-                    if (maestroSaved.getDocumentos().add(pdf)) return;
-
-                    Pdf pdfSaved = maestroSaved.getDocumentos()
-                            .stream()
-                            .reduce((ac, ds) -> ds.equals(pdf) ? ds : ac)
-                            .map(Pdf.class::cast)
-                            .orElseThrow();
-
-                    pdfSaved.setReporte(reporteSinValidar);
-                    pdfSaved.setBytes(pdf.getBytes());
-                    pdfSaved.setEncrypted(false);
-                });
-
-        maestroSaved.getDocumentos().forEach(pdf -> {
-            Documento documentoSaved = documentoService.saveOrUpdate((Pdf) pdf);
-            pdf.setId(documentoSaved.getId());
+            Pdf pdfSaved = maestroSaved.getDocumentos()
+                    .stream()
+                    .reduce((ac, ds) -> ds.equals(pdf) ? ds : ac)
+                    .map(Pdf.class::cast)
+                    .orElseThrow();
+            pdfSaved.setReporte(pdf.getReporte());
+            pdfSaved.setBytes(pdf.getBytes());
+            pdfSaved.setEncrypted(false);
+        });
+        maestroSaved.getDocumentos().forEach(doc -> {
+            ObjectId docId = documentoService.saveOrUpdate(doc.asPdf()).getId();
+            doc.setId(docId);
         });
 
         if (!update(maestroSaved))

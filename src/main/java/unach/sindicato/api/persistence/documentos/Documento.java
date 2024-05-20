@@ -8,9 +8,8 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -67,10 +66,13 @@ public class Documento implements Unico {
         none
     }
 
+    public Pdf asPdf() {
+        if (content == Contents.pdf) return (Pdf) this;
+        throw new IllegalArgumentException(
+                "Documento que se esperaba ser pdf, no contiene la propiedad content como pdf");
+    }
+
     @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class Reporte {
         @NotNull(message = "Se requiere un motivo",
                 groups = InitInfo.class)
@@ -78,6 +80,12 @@ public class Documento implements Unico {
         @NotEmpty(message = "Se requiere una descripcion",
                 groups = InitInfo.class)
         String descripcion;
+
+        public static @NonNull Reporte motivo(Estatus estatus) {
+            Reporte reporte = new Reporte();
+            reporte.setMotivo(estatus);
+            return reporte;
+        }
     }
 
     @Override

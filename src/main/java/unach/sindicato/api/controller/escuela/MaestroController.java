@@ -17,6 +17,7 @@ import unach.sindicato.api.utils.Correo;
 import unach.sindicato.api.utils.groups.DocumentInfo;
 import unach.sindicato.api.utils.groups.IdInfo;
 import unach.sindicato.api.utils.groups.InitInfo;
+import unach.sindicato.api.utils.persistence.InstanciaUnica;
 import unach.sindicato.api.utils.response.UddResponse;
 
 import java.util.Arrays;
@@ -38,6 +39,16 @@ public class MaestroController implements PersistenceController<Maestro>, AuthCo
     @Transactional
     public UddResponse save(Maestro maestro) {
         return register(maestro);
+    }
+
+    @Override
+    public UddResponse findById(@NonNull InstanciaUnica instancia) {
+        return UddResponse.collection()
+                .status(HttpStatus.OK)
+                .message("%s encontrado correctamente"
+                        .formatted(service().clazz().getSimpleName()))
+                .collection(service().findByIdExcludingPdf(instancia.getId()))
+                .build();
     }
 
     @PreAuthorize("hasAuthority('administrador')")
@@ -101,8 +112,6 @@ public class MaestroController implements PersistenceController<Maestro>, AuthCo
     @PreAuthorize("hasAuthority('administrador')")
     @PostMapping("/where/correo-is")
     public UddResponse findByCorreo(@RequestBody@Validated(InitInfo.class) Correo correo) {
-        AuthController.logger.post(MaestroController.class);
-
         return UddResponse.collection()
                 .status(HttpStatus.OK)
                 .collection(service.findByCorreo(correo))
@@ -113,8 +122,6 @@ public class MaestroController implements PersistenceController<Maestro>, AuthCo
     @PostMapping("/add/documentos")
     public UddResponse addDocumentos(
             @RequestBody@Validated({DocumentInfo.class, IdInfo.class}) Maestro maestro) {
-        AuthController.logger.post(MaestroController.class);
-
         return UddResponse.result()
                 .status(HttpStatus.OK)
                 .result(service.addDocumentos(maestro))

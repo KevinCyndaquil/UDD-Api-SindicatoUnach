@@ -1,3 +1,9 @@
+let db = {
+    escuela: {
+        aggregate: function (query) {}
+    }
+};
+
 db.escuela.aggregate([
     {
         $match: { "_class": "unach.sindicato.api.persistence.escuela.Maestro" }

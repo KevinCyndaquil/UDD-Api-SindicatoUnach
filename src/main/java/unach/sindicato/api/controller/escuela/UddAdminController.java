@@ -32,7 +32,7 @@ public class UddAdminController implements PersistenceController<UddAdmin>, Auth
     }
 
     @PreAuthorize("hasAuthority('administrador')")
-    @PostMapping("/where/correo/is")
+    @PostMapping("/where/correo-is")
     public UddResponse findByCorreo(@RequestBody @Validated(InitInfo.class) Correo correo) {
         AuthController.logger.post(MaestroController.class);
 
@@ -43,7 +43,7 @@ public class UddAdminController implements PersistenceController<UddAdmin>, Auth
                 .build();
     }
 
-    @PostMapping("/add-reportes")
+    @PostMapping("/add/reportes")
     public UddResponse addReporte(
             @RequestBody@Validated({DocumentInfo.class, IdInfo.class}) Maestro maestro) {
         AuthController.logger.post(MaestroController.class);

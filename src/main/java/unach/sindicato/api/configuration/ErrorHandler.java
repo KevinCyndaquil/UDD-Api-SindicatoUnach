@@ -92,7 +92,8 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler({
-            MongoCommandException.class
+            MongoCommandException.class,
+            NullPointerException.class
     })
     public UddResponse handleInternalError(Exception e) {
         logger.error(e);

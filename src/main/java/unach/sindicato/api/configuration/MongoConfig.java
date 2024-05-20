@@ -1,5 +1,9 @@
 package unach.sindicato.api.configuration;
 
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.mongo.MongoProperties;
@@ -29,6 +33,15 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
     @Bean
     public MongoTransactionManager transactionManager(MongoDatabaseFactory dbFactory) {
         return new MongoTransactionManager(dbFactory);
+    }
+
+    @Override
+    public @NonNull MongoClient mongoClient() {
+        final ConnectionString connectionString = new ConnectionString(mongoProperties.getUri());
+        final MongoClientSettings settings = MongoClientSettings.builder()
+                .applyConnectionString(connectionString)
+                .build();
+        return MongoClients.create(settings);
     }
 
     @Override

@@ -40,6 +40,7 @@ public class MaestroTest implements PersistenceTest {
     }
 
     @Test
+    @Override
     public void testSave() {
         Credencial credencial = JsonData.CREDENTIALS.first(Credencial.class)
                 .orElseThrow();
@@ -75,5 +76,23 @@ public class MaestroTest implements PersistenceTest {
 
         boolean deletionResult = service.delete(maestroId);
         assertTrue(deletionResult);
+    }
+
+    @Test
+    @Override
+    public void testFindById() {
+
+    }
+
+    @Test
+    @Override
+    public void testFindAll() {
+
+    }
+
+    @Test
+    @Override
+    public void testUpdate() {
+
     }
 }

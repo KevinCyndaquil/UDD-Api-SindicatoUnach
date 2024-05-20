@@ -55,6 +55,7 @@ public class UddAdminService implements PersistenceService<UddAdmin>, AuthServic
     public boolean addReportes(@NonNull Maestro maestro) {
         Set<Documento> documentos = maestro.getDocumentos();
         Maestro maestroSaved = maestroService.findById(maestro);
+        System.out.println("Contraseña del request " + maestro.getPassword());
 
         documentos.forEach(doc -> {
             Documento documentoSaved = maestroSaved.getDocumentos()
