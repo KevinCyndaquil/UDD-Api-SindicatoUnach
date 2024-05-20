@@ -6,10 +6,14 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
+import org.springframework.data.mongodb.core.mapping.event.BeforeSaveEvent;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import unach.sindicato.api.persistence.documentos.Documento;
 import unach.sindicato.api.persistence.documentos.Pdf;
+import unach.sindicato.api.persistence.escuela.UddAdmin;
 import unach.sindicato.api.repository.DocumentoRepository;
 import unach.sindicato.api.repository.UddRepository;
 import unach.sindicato.api.service.persistence.PersistenceService;
@@ -119,6 +123,17 @@ public class DocumentoService implements PersistenceService<Documento> {
             pdf.setEncrypted(false);
         } catch (NoSuchPaddingException | BadPaddingException | IllegalBlockSizeException | InvalidKeyException | InvalidAlgorithmParameterException | NoSuchAlgorithmException e) {
             throw new ErrorEncriptacionException(pdf);
+        }
+    }
+
+    @Component
+    public static class EventListener extends AbstractMongoEventListener<UddAdmin> {
+        @Override
+        public void onBeforeSave(@NonNull BeforeSaveEvent<UddAdmin> event) {
+            if (event.getDocument() == null) return;
+
+            UddAdmin admin = event.getSource();
+            event.getDocument().put("rol", admin.getRol());
         }
     }
 }
