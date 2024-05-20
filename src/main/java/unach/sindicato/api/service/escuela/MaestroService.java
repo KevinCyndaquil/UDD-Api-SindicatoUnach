@@ -119,6 +119,8 @@ public class MaestroService implements PersistenceService<Maestro>, AuthService<
                 .collect(Collectors.toSet());
 
         Maestro maestroSaved = findById(maestro);
+        maestroSaved.setPassword(null);
+
         documentos.forEach(pdf -> {
             pdf.setReporte(Documento.Reporte.motivo(Documento.Estatus.REQUIERE_VALIDAR));
             if (maestroSaved.getDocumentos().add(pdf)) return;
