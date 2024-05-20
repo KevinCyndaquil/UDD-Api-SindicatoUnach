@@ -80,7 +80,7 @@ class DocumentoTest implements PersistenceTest {
                 .jsonAs(Maestro.class);
 
         Pdf pdf = new Pdf();
-        pdf.setFormato(Formatos.CAJA_AHORRO);
+        pdf.setFormato(Formatos.CEDULA_MAESTRIA);
         try {
             Path path = Paths.get(Objects.requireNonNull(DocumentoTest.class
                             .getClassLoader()

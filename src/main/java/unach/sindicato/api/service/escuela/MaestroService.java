@@ -111,9 +111,11 @@ public class MaestroService implements PersistenceService<Maestro>, AuthService<
 
     @Transactional
     public boolean addDocumentos(@NonNull Maestro maestro) {
+        System.out.println(maestro);
         Set<Pdf> documentos = maestro.getDocumentos()
                 .stream()
-                .map(Documento::asPdf)
+                .map(Pdf.class::cast)
+                .peek(d -> System.out.println(d.getContent()))
                 .collect(Collectors.toSet());
 
         Maestro maestroSaved = findById(maestro);
@@ -131,7 +133,7 @@ public class MaestroService implements PersistenceService<Maestro>, AuthService<
             pdfSaved.setEncrypted(false);
         });
         maestroSaved.getDocumentos().forEach(doc -> {
-            ObjectId docId = documentoService.saveOrUpdate(doc.asPdf()).getId();
+            ObjectId docId = documentoService.saveOrUpdate((Pdf) doc).getId();
             doc.setId(docId);
         });
 
