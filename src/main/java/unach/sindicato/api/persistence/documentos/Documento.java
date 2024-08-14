@@ -1,5 +1,6 @@
 package unach.sindicato.api.persistence.documentos;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -61,6 +62,7 @@ public class Documento implements Unico {
         return TipoContenido.none;
     }
 
+    @JsonIgnore
     public Optional<Reporte> getUltimoReporte() {
         if (reportes.isEmpty()) return Optional.empty();
         return Optional.of(reportes.get(reportes.size() - 1));
@@ -98,7 +100,7 @@ public class Documento implements Unico {
         private String descripcion;
         @Null(message = "No se debe proporcionar una propiedad fecha",
                 groups = InitInfo.class)
-        private final LocalDateTime fecha = LocalDateTime.now();
+        private LocalDateTime fecha = LocalDateTime.now();
 
         public Reporte(@NonNull Estatus estatus) {
             this.motivo = estatus;
