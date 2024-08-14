@@ -8,9 +8,8 @@ import lombok.*;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import unach.sindicato.api.persistence.documentos.Documento;
-import unach.sindicato.api.utils.UddUser;
-import unach.sindicato.api.utils.Roles;
-import unach.sindicato.api.utils.Telefono;
+import unach.sindicato.api.persistence.data.RolesUsuario;
+import unach.sindicato.api.persistence.data.Telefono;
 import unach.sindicato.api.utils.groups.DocumentInfo;
 import unach.sindicato.api.utils.groups.InitInfo;
 
@@ -18,6 +17,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * @author Kevin Alejandro Francisco González.
  * Persona encargada de impartir clases y que para UDD, tiene documentos e información necesaria
  * para su administración.
  */
@@ -26,40 +26,37 @@ import java.util.Set;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @Document(collection = "escuela")
-public class Maestro extends UddUser {
+public class Maestro extends UsuarioUDD {
     @DBRef
-    @NotEmpty(message = "Se requiere al menos un documento",
+    @NotEmpty(message = "Se debe proporcionar al menos un documento",
             groups = DocumentInfo.class)
-    Set<Documento> documentos = new HashSet<>();
-    @NotNull(message = "Se requiere un télefono",
+    private Set<Documento> documentos = new HashSet<>();
+    @NotNull(message = "Se debe proporcionar un télefono",
             groups = InitInfo.class)
-    @Valid Telefono telefono;
-    @Valid Facultad facultad;
-    @Null(message = "El estatus es calculado, favor de no proporcionarlo",
+    @Valid
+    private Telefono telefono;
+    @Valid
+    private Facultad facultad;
+    @Null(message = "El estatus es calculado, favor de no proporcionarlo durante la creación",
             groups = InitInfo.class)
-    Estatus estatus;
+    private Estatus estatus;
 
     @Override
-    public @NonNull Roles getRol() {
-        return Roles.maestro;
+    public @NonNull RolesUsuario getRol() {
+        return RolesUsuario.maestro;
     }
 
     public Estatus validar() {
-        if (documentos.isEmpty()) return Estatus.SIN_DOCUMENTAR;
+        for (var doc : documentos) {
+            var reporte = doc.getUltimoReporte().orElseThrow();
 
-        var reporteSinValidar = documentos.stream()
-                .map(Documento::getReporte)
-                .filter(r -> r.getMotivo().equals(Documento.Estatus.REQUIERE_VALIDAR))
-                .findFirst();
-        if (reporteSinValidar.isPresent()) return Estatus.SIN_VALIDAR;
-
-        var reportesValidos = documentos.stream()
-                .map(Documento::getReporte)
-                .map(r -> r.getMotivo().equals(Documento.Estatus.ACEPTADO))
-                .reduce(true, Boolean::logicalAnd);
-        if (reportesValidos) return Estatus.VALIDADO;
-
-        return Estatus.ERROR_DOCUMENTACION;
+            if (!reporte.getMotivo().equals(Documento.Estatus.ACEPTADO))
+                if (reporte.getMotivo().equals(Documento.Estatus.REQUIERE_VALIDAR))
+                    return Estatus.SIN_VALIDAR;
+                else
+                    return Estatus.ERROR_DOCUMENTACION;
+        }
+        return Estatus.VALIDADO;
     }
 
     @Override

@@ -7,7 +7,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import unach.sindicato.api.utils.UddUser;
+import unach.sindicato.api.persistence.escuela.UsuarioUDD;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -19,7 +19,7 @@ public class JwtService {
     @Value("${jwt.secret}") String SECRET;
     @Value("${jwt.expires-in}") long EXPIRES_IN;
 
-    public String generate(@NonNull UddUser user) {
+    public String generate(@NonNull UsuarioUDD user) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + EXPIRES_IN);
 

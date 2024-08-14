@@ -13,8 +13,8 @@ import unach.sindicato.api.persistence.documentos.Documento;
 import unach.sindicato.api.persistence.documentos.Pdf;
 import unach.sindicato.api.persistence.escuela.Maestro;
 import unach.sindicato.api.util.UddRequester;
-import unach.sindicato.api.utils.Correo;
-import unach.sindicato.api.utils.Formatos;
+import unach.sindicato.api.persistence.data.Correo;
+import unach.sindicato.api.persistence.data.Formatos;
 import unach.sindicato.api.utils.UddMapper;
 import unach.sindicato.api.utils.persistence.Credencial;
 import unach.sindicato.api.utils.persistence.Token;
@@ -49,62 +49,65 @@ class DocumentoTest implements PersistenceTest {
     @Test
     @Override
     public void testSave() {
-        Credencial credencial = JsonData.CREDENTIALS.first(Credencial.class)
-                .orElseThrow();
-
-        var loginResponse = requester.login(
-                "http://localhost:" + port + "/udd/api/admin/auth/login",
-                credencial
-        );
-        assertEquals(loginResponse.getStatusCode(), HttpStatus.OK);
-        assertNotNull(loginResponse.getBody());
-
-        String token = loginResponse
-                .getBody()
-                .jsonAs(Token.class)
-                .getToken();
-
-        Correo correo = new Correo();
-        correo.setDireccion("erwin.bermudez@unach.mx");
-
-        var getByCorreoResponse = requester.post(
-                "http://localhost:%s/udd/api/maestros/where/correo-is".formatted(port),
-                token,
-                correo
-        );
-        assertEquals(getByCorreoResponse.getStatusCode(), HttpStatus.OK);
-        assertNotNull(getByCorreoResponse.getBody());
-
-        Maestro erwin = getByCorreoResponse
-                .getBody()
-                .jsonAs(Maestro.class);
-
-        Pdf pdf = new Pdf();
-        pdf.setFormato(Formatos.CEDULA_MAESTRIA);
         try {
-            Path path = Paths.get(Objects.requireNonNull(DocumentoTest.class
-                            .getClassLoader()
-                            .getResource("pdf/actividad3.pdf"))
-                    .toURI()
-                    .getPath());
-            pdf.setBytes(Files.readAllBytes(path));
-        } catch (URISyntaxException | IOException e) {
-            throw new RuntimeException(e);
+            Credencial credencial = JsonData.CREDENTIALS.first(Credencial.class)
+                    .orElseThrow();
+
+            var loginResponse = requester.login(
+                    "http://localhost:" + port + "/udd/api/admin/auth/login",
+                    credencial
+            );
+            assertEquals(loginResponse.getStatusCode(), HttpStatus.OK);
+            assertNotNull(loginResponse.getBody());
+
+            String token = loginResponse
+                    .getBody()
+                    .jsonAs(Token.class)
+                    .getToken();
+
+            Correo correo = new Correo();
+            correo.setDireccion("erwin.bermudez@unach.mx");
+
+            var getByCorreoResponse = requester.post(
+                    "http://localhost:%s/udd/api/maestros/where/correo-is".formatted(port),
+                    token,
+                    correo
+            );
+            assertEquals(getByCorreoResponse.getStatusCode(), HttpStatus.OK);
+            assertNotNull(getByCorreoResponse.getBody());
+
+            Maestro erwin = getByCorreoResponse
+                    .getBody()
+                    .jsonAs(Maestro.class);
+
+            Pdf pdf = new Pdf();
+            pdf.setFormato(Formatos.CEDULA_MAESTRIA);
+            try {
+                Path path = Paths.get(Objects.requireNonNull(DocumentoTest.class
+                                .getClassLoader()
+                                .getResource("pdf/actividad3.pdf"))
+                        .toURI());
+                pdf.setBytes(Files.readAllBytes(path));
+            } catch (URISyntaxException | IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            erwin.getDocumentos().clear();
+            erwin.getDocumentos().add(pdf);
+            erwin.setEstatus(null);
+
+            var saveResponse = requester.post(
+                    "http://localhost:%s/udd/api/maestros/add/documentos".formatted(port),
+                    token,
+                    erwin
+            );
+            assertEquals(saveResponse.getStatusCode(), HttpStatus.OK);
+            assertNotNull(saveResponse.getBody());
+
+            System.out.println(saveResponse.getBody());
+        } finally {
+
         }
-
-        erwin.getDocumentos().clear();
-        erwin.getDocumentos().add(pdf);
-        erwin.setEstatus(null);
-
-        var saveResponse = requester.post(
-                "http://localhost:%s/udd/api/maestros/add/documentos".formatted(port),
-                token,
-                erwin
-        );
-        assertEquals(saveResponse.getStatusCode(), HttpStatus.OK);
-        assertNotNull(saveResponse.getBody());
-
-        System.out.println(saveResponse.getBody());
     }
 
     @Test
@@ -157,12 +160,10 @@ class DocumentoTest implements PersistenceTest {
                 .getBody()
                 .jsonAs(Maestro.class);
 
-        Documento.Reporte reporte = Documento.Reporte.motivo(Documento.Estatus.REQUIERE_ACTUALIZAR);
-        reporte.setDescripcion("wey noooooo");
-        erwin.getDocumentos()
-                .stream()
+        Documento.Reporte reporte = new Documento.Reporte(Documento.Estatus.REQUIERE_ACTUALIZAR);
+        erwin.getDocumentos().stream()
                 .findFirst()
-                .ifPresent(doc -> doc.setReporte(reporte));
+                .ifPresent(doc -> doc.add(reporte));
 
         var saveResponse = requester.post(
                 "http://localhost:%s/udd/api/admin/add/reportes".formatted(port),

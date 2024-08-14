@@ -5,8 +5,9 @@ import unach.sindicato.api.repository.UddRepository;
 import unach.sindicato.api.utils.persistence.Unico;
 
 /**
+ * @author Kevin Alejandro Francisco González
  * Servicio generalizado para otros servicios de la API de UDD.
- * @param <C> tipo elemental de la coleccion de este Servicio.
+ * @param <C> tipo elemental de la colección de este Servicio.
  */
 public interface UddService <C extends Unico> {
     /**

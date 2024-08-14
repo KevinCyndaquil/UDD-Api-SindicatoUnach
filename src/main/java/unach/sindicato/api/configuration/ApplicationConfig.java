@@ -8,13 +8,13 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.web.client.RestTemplate;
-import unach.sindicato.api.service.auth.UddUserService;
+import unach.sindicato.api.service.auth.UsuarioUDDService;
 import unach.sindicato.api.utils.UddMapper;
 
 @Configuration
 @RequiredArgsConstructor
 public class ApplicationConfig {
-    final UddUserService authService;
+    final UsuarioUDDService authService;
 
     @Bean
     public UddMapper uddMapper() {

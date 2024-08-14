@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Repository
-public interface MaestroRepository extends UddUserRepository<Maestro> {
+public interface MaestroRepository extends UsuarioUDDRepository<Maestro> {
     @Override
     @Aggregation(pipeline = {
             "{$match: {'correo_institucional.direccion': ?0, '_class': ?1}}",

@@ -6,15 +6,15 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import unach.sindicato.api.controller.persistence.PersistenceController;
+import unach.sindicato.api.persistence.escuela.UsuarioUDD;
 import unach.sindicato.api.service.auth.AuthService;
 import unach.sindicato.api.utils.UddLogger;
-import unach.sindicato.api.utils.UddUser;
 import unach.sindicato.api.utils.groups.InitInfo;
 import unach.sindicato.api.utils.groups.NotId;
 import unach.sindicato.api.utils.persistence.Credencial;
 import unach.sindicato.api.utils.response.UddResponse;
 
-public interface AuthController <U extends UddUser> {
+public interface AuthController <U extends UsuarioUDD> {
     UddLogger logger = new UddLogger(PersistenceController.class);
 
     @NonNull AuthService<U> service();

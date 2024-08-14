@@ -25,8 +25,8 @@ public interface SaveController <C extends Unico> {
     @NonNull SaveService<C> service();
 
     @PostMapping
-    @PreAuthorize("hasAuthority('administrador')")
-    default UddResponse save(@RequestBody @Validated({InitInfo.class, NotId.class}) C c) {
+    //@PreAuthorize("hasAuthority('administrador')")
+    default UddResponse save(@RequestBody@Validated({InitInfo.class, NotId.class}) C c) {
         return UddResponse.collection()
                 .status(HttpStatus.CREATED)
                 .message("%s fue persistido correctamente"

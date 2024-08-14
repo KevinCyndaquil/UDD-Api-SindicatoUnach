@@ -14,7 +14,7 @@ import unach.sindicato.api.controller.persistence.PersistenceController;
 import unach.sindicato.api.persistence.escuela.Maestro;
 import unach.sindicato.api.persistence.escuela.UddAdmin;
 import unach.sindicato.api.service.escuela.UddAdminService;
-import unach.sindicato.api.utils.Correo;
+import unach.sindicato.api.persistence.data.Correo;
 import unach.sindicato.api.utils.groups.DocumentInfo;
 import unach.sindicato.api.utils.groups.IdInfo;
 import unach.sindicato.api.utils.groups.InitInfo;
@@ -53,5 +53,11 @@ public class UddAdminController implements PersistenceController<UddAdmin>, Auth
                 .collection(service.addReportes(maestro))
                 .message("Reportes actualizados correctamente")
                 .build();
+    }
+
+    @PreAuthorize("hasAuthority('administrador')")
+    @Override
+    public UddResponse register(UddAdmin uddAdmin) {
+        return AuthController.super.register(uddAdmin);
     }
 }

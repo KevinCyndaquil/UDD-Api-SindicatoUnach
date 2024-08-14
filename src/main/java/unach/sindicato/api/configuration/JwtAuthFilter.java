@@ -22,12 +22,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import unach.sindicato.api.service.auth.JwtService;
-import unach.sindicato.api.service.auth.UddUserService;
-import unach.sindicato.api.utils.Roles;
+import unach.sindicato.api.service.auth.UsuarioUDDService;
+import unach.sindicato.api.persistence.data.RolesUsuario;
 import unach.sindicato.api.utils.UddLogger;
 import unach.sindicato.api.utils.UddMapper;
-import unach.sindicato.api.utils.UddUser;
-import unach.sindicato.api.utils.error.Errors;
+import unach.sindicato.api.persistence.escuela.UsuarioUDD;
+import unach.sindicato.api.utils.exceptions.Errors;
 import unach.sindicato.api.utils.persistence.Credencial;
 import unach.sindicato.api.utils.response.UddResponse;
 
@@ -38,7 +38,7 @@ import java.io.OutputStream;
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
     final JwtService jwtService;
-    final UddUserService uddUserService;
+    final UsuarioUDDService uddUserService;
     final UddMapper mapper;
 
     final UddLogger logger = new UddLogger(JwtAuthFilter.class);
@@ -87,8 +87,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if (SecurityContextHolder.getContext().getAuthentication() != null) return;
 
-        Roles rol = Roles.of(jwtService.parse(token).get("rol", String.class));
-        UddUser user = uddUserService.readById(id, rol);
+        RolesUsuario rol = RolesUsuario.of(jwtService.parse(token).get("rol", String.class));
+        UsuarioUDD user = uddUserService.readById(id, rol);
         logger.info("User is enterring: " + user);
 
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(

@@ -21,10 +21,10 @@ import unach.sindicato.api.service.auth.AuthService;
 import unach.sindicato.api.service.documentos.DocumentoService;
 import unach.sindicato.api.service.persistence.PersistenceService;
 import unach.sindicato.api.service.auth.JwtService;
-import unach.sindicato.api.utils.Correo;
-import unach.sindicato.api.utils.Roles;
-import unach.sindicato.api.utils.error.BusquedaSinResultadoException;
-import unach.sindicato.api.utils.error.DocumentoNoActualizadoException;
+import unach.sindicato.api.persistence.data.Correo;
+import unach.sindicato.api.persistence.data.RolesUsuario;
+import unach.sindicato.api.utils.exceptions.BusquedaSinResultadoException;
+import unach.sindicato.api.utils.exceptions.DocumentoNoActualizadoException;
 
 import java.util.List;
 import java.util.Set;
@@ -55,8 +55,8 @@ public class MaestroService implements PersistenceService<Maestro>, AuthService<
     }
 
     @Override
-    public @NonNull Roles expectedRol() {
-        return Roles.maestro;
+    public @NonNull RolesUsuario expectedRol() {
+        return RolesUsuario.maestro;
     }
 
     @Override
@@ -68,7 +68,7 @@ public class MaestroService implements PersistenceService<Maestro>, AuthService<
         var maestro = AuthService.super.findById(id);
         maestro.getDocumentos()
                 .stream()
-                .filter(d -> d.getContent().equals(Documento.Contents.pdf))
+                .filter(d -> d.getContent().equals(Documento.TipoContenido.pdf))
                 .map(Pdf.class::cast)
                 .forEach(d -> d.setBytes(null));
         return maestro;
@@ -99,7 +99,7 @@ public class MaestroService implements PersistenceService<Maestro>, AuthService<
                         .foreignField("_id")
                         .as("documentos"),
                 Aggregation.project().andExclude("oa.documentos.bytes"),
-                Aggregation.match(Criteria.where("documentos.reporte.motivo").is(estatus))
+                Aggregation.match(Criteria.where("documentos.reportes.motivo").is(estatus))
         );
 
         return mongoTemplate.aggregate(
@@ -122,15 +122,17 @@ public class MaestroService implements PersistenceService<Maestro>, AuthService<
         maestroSaved.setPassword(null);
 
         documentos.forEach(pdf -> {
-            pdf.setReporte(Documento.Reporte.motivo(Documento.Estatus.REQUIERE_VALIDAR));
+            pdf.add(new Documento.Reporte(Documento.Estatus.REQUIERE_VALIDAR));
+
             if (maestroSaved.getDocumentos().add(pdf)) return;
 
             Pdf pdfSaved = maestroSaved.getDocumentos()
                     .stream()
-                    .reduce((ac, ds) -> ds.equals(pdf) ? ds : ac)
+                    .reduce((ac, docSaved) -> docSaved.equals(pdf) ? docSaved : ac)
                     .map(Pdf.class::cast)
                     .orElseThrow();
-            pdfSaved.setReporte(pdf.getReporte());
+
+            pdfSaved.setReportes(pdf.getReportes());
             pdfSaved.setBytes(pdf.getBytes());
             pdfSaved.setEncrypted(false);
         });

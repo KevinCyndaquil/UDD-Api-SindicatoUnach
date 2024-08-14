@@ -7,19 +7,27 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NonNull;
+import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.validation.annotation.Validated;
 import unach.sindicato.api.persistence.escuela.Maestro;
-import unach.sindicato.api.utils.Formatos;
+import unach.sindicato.api.persistence.data.Formatos;
 import unach.sindicato.api.utils.groups.InitInfo;
 import unach.sindicato.api.utils.groups.IdInfo;
 import unach.sindicato.api.utils.groups.NotId;
 import unach.sindicato.api.utils.persistence.Unico;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * @author Kevin Alejandro Francisco González.
+ * Representa un documento abstracto que pertenece a un maestro.
+ */
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -31,23 +39,35 @@ import unach.sindicato.api.utils.persistence.Unico;
 @Data
 @Document(collection = "documentos")
 public class Documento implements Unico {
-    @Null(message = "No se debe proporcionar una propiedad id",
+    @Null(message = "No se debe proporcionar un id",
             groups = NotId.class)
-    @NotNull(message = "Se debe proporcionar un identificador",
+    @NotNull(message = "Se debe proporcionar un id",
             groups = IdInfo.class)
-    ObjectId id;
-    @NotNull(message = "Se requiere un formato",
+    private ObjectId id;
+    @NotNull(message = "Se debe proporcionar un formato",
             groups = InitInfo.class)
-    Formatos formato;
-    @Null(message = "No se debe proporcionar una propiedad reporte",
+    protected Formatos formato;
+    @Null(message = "No se debe proporcionar una propiedad reportes",
             groups = InitInfo.class)
-    @Valid Reporte reporte;
-    Contents content;
+    @Null(message = "No se debe proporcionar un reporte durante la creación",
+            groups = InitInfo.class)
+    @Valid
+    protected List<Reporte> reportes = new ArrayList<>();
+    private TipoContenido content;
 
     @Field("content")
     @JsonProperty("content")
-    public Contents getContent() {
-        return Contents.none;
+    public TipoContenido getContent() {
+        return TipoContenido.none;
+    }
+
+    public Optional<Reporte> getUltimoReporte() {
+        if (reportes.isEmpty()) return Optional.empty();
+        return Optional.of(reportes.get(reportes.size() - 1));
+    }
+
+    public void add(@NonNull Reporte reporte) {
+        reportes.add(reporte);
     }
 
     @AllArgsConstructor
@@ -61,30 +81,28 @@ public class Documento implements Unico {
         public final String hexColor;
     }
 
-    public enum Contents {
+    public enum TipoContenido {
         pdf,
-        none
-    }
-
-    public Pdf asPdf() {
-        if (content == Contents.pdf) return (Pdf) this;
-        throw new IllegalArgumentException(
-                "Documento que se esperaba ser pdf, no contiene la propiedad content como pdf");
+        none,
     }
 
     @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Reporte {
-        @NotNull(message = "Se requiere un motivo",
+        @NotNull(message = "Se debe proporcionar un motivo",
                 groups = InitInfo.class)
-        Estatus motivo;
-        @NotEmpty(message = "Se requiere una descripcion",
+        private Estatus motivo;
+        @NotEmpty(message = "Se debe proporcionar una descripcion",
                 groups = InitInfo.class)
-        String descripcion;
+        private String descripcion;
+        @Null(message = "No se debe proporcionar una propiedad fecha",
+                groups = InitInfo.class)
+        private final LocalDateTime fecha = LocalDateTime.now();
 
-        public static @NonNull Reporte motivo(Estatus estatus) {
-            Reporte reporte = new Reporte();
-            reporte.setMotivo(estatus);
-            return reporte;
+        public Reporte(@NonNull Estatus estatus) {
+            this.motivo = estatus;
+            this.descripcion = estatus.name();
         }
     }
 
@@ -102,5 +120,6 @@ public class Documento implements Unico {
 
     @Validated(IdInfo.class)
     public record Entrada(@Valid Documento documento,
-                          @Valid Maestro maestro) {}
+                          @Valid Maestro maestro) {
+    }
 }

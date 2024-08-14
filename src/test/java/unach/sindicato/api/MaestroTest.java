@@ -21,6 +21,8 @@ import unach.sindicato.api.utils.persistence.Token;
 import unach.sindicato.util.JsonData;
 import unach.sindicato.api.util.PersistenceTest;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
@@ -42,40 +44,46 @@ public class MaestroTest implements PersistenceTest {
     @Test
     @Override
     public void testSave() {
-        Credencial credencial = JsonData.CREDENTIALS.first(Credencial.class)
-                .orElseThrow();
+        Optional<ObjectId> maestroId = Optional.empty();
 
-        var loginResponse = requester.login(
-                "http://localhost:%s/udd/api/admin/auth/login".formatted(port),
-                credencial
-        );
-        assertEquals(loginResponse.getStatusCode(), HttpStatus.OK);
-        assertNotNull(loginResponse.getBody());
+        try {
+            Credencial credencial = JsonData.CREDENTIALS.first(Credencial.class)
+                    .orElseThrow();
 
-        String token = loginResponse
-                .getBody()
-                .jsonAs(Token.class)
-                .getToken();
+            var loginResponse = requester.login(
+                    "http://localhost:%s/udd/api/admin/auth/login".formatted(port),
+                    credencial
+            );
+            assertEquals(loginResponse.getStatusCode(), HttpStatus.OK);
+            assertNotNull(loginResponse.getBody());
 
-        var maestro = JsonData.MAESTROS.first()
-                .orElseThrow();
+            String token = loginResponse
+                    .getBody()
+                    .jsonAs(Token.class)
+                    .getToken();
 
-        var saveResponse = requester.post(
-                "http://localhost:%s/udd/api/maestros/auth/register".formatted(port),
-                token,
-                maestro
-        );
-        assertEquals(saveResponse.getStatusCode(), HttpStatus.CREATED);
-        assertNotNull(saveResponse.getBody());
+            var maestro = JsonData.MAESTROS.first()
+                    .orElseThrow();
 
-        ObjectId maestroId = saveResponse
-                .getBody()
-                .jsonAs(new TypeReference<Token<Maestro>>() {})
-                .getDocument()
-                .getId();
+            var saveResponse = requester.post(
+                    "http://localhost:%s/udd/api/maestros/auth/register".formatted(port),
+                    token,
+                    maestro
+            );
+            assertEquals(saveResponse.getStatusCode(), HttpStatus.CREATED);
+            assertNotNull(saveResponse.getBody());
 
-        boolean deletionResult = service.delete(maestroId);
-        assertTrue(deletionResult);
+            maestroId = Optional.of(saveResponse
+                    .getBody()
+                    .jsonAs(new TypeReference<Token<Maestro>>() {})
+                    .getDocument()
+                    .getId());
+        } finally {
+            maestroId.ifPresent(id -> {
+                boolean deletionResult = service.delete(id);
+                assertTrue(deletionResult);
+            });
+        }
     }
 
     @Test

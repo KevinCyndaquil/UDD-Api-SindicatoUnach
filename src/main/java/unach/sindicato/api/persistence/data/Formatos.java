@@ -1,4 +1,4 @@
-package unach.sindicato.api.utils;
+package unach.sindicato.api.persistence.data;
 
 /**
  * @author kevincyndaquil

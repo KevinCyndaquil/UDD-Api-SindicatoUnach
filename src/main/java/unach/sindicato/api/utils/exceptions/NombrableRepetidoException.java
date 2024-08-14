@@ -1,4 +1,4 @@
-package unach.sindicato.api.utils.error;
+package unach.sindicato.api.utils.exceptions;
 
 import lombok.NonNull;
 import unach.sindicato.api.utils.persistence.Nombrable;

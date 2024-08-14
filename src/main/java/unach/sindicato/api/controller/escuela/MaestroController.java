@@ -13,7 +13,7 @@ import unach.sindicato.api.persistence.documentos.Documento;
 import unach.sindicato.api.persistence.escuela.Facultad;
 import unach.sindicato.api.persistence.escuela.Maestro;
 import unach.sindicato.api.service.escuela.MaestroService;
-import unach.sindicato.api.utils.Correo;
+import unach.sindicato.api.persistence.data.Correo;
 import unach.sindicato.api.utils.groups.DocumentInfo;
 import unach.sindicato.api.utils.groups.IdInfo;
 import unach.sindicato.api.utils.groups.InitInfo;

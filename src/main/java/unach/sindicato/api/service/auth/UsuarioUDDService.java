@@ -12,15 +12,15 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import unach.sindicato.api.persistence.escuela.UddAdmin;
 import unach.sindicato.api.persistence.escuela.Maestro;
-import unach.sindicato.api.utils.Roles;
-import unach.sindicato.api.utils.UddUser;
+import unach.sindicato.api.persistence.data.RolesUsuario;
+import unach.sindicato.api.persistence.escuela.UsuarioUDD;
 
 @Service
 @RequiredArgsConstructor
-public class UddUserService implements UserDetailsService {
+public class UsuarioUDDService implements UserDetailsService {
     final MongoTemplate mongoTemplate;
 
-    public @NonNull UddUser readById(@NonNull ObjectId id)
+    public @NonNull UsuarioUDD readById(@NonNull ObjectId id)
             throws UsernameNotFoundException {
         Query query = new Query(
                 Criteria.where("_id").is(id)
@@ -28,14 +28,14 @@ public class UddUserService implements UserDetailsService {
                                 Criteria.where("_class").is(Maestro.class.getName()),
                                 Criteria.where("_class").is(UddAdmin.class.getName())
                         ));
-        UddUser user = mongoTemplate.findOne(query, UddUser.class);
+        UsuarioUDD user = mongoTemplate.findOne(query, UsuarioUDD.class);
 
         if (user == null) throw new UsernameNotFoundException("ID provided %s was not found"
                 .formatted(id));
         return user;
     }
 
-    public @NonNull UddUser readById(@NonNull ObjectId id, Roles rolExpected)
+    public @NonNull UsuarioUDD readById(@NonNull ObjectId id, RolesUsuario rolExpected)
             throws UsernameNotFoundException {
         Query query = new Query(
                 Criteria.where("_id").is(id)
@@ -44,7 +44,7 @@ public class UddUserService implements UserDetailsService {
                                 Criteria.where("_class").is(UddAdmin.class.getName())
                         )
                         .andOperator(Criteria.where("rol").is(rolExpected)));
-        UddUser user = mongoTemplate.findOne(query, UddUser.class);
+        UsuarioUDD user = mongoTemplate.findOne(query, UsuarioUDD.class);
 
         if (user == null) throw new UsernameNotFoundException("ID provided %s was not found"
                 .formatted(id));
